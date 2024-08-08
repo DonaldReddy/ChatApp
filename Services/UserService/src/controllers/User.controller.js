@@ -84,6 +84,8 @@ async function getLastSeen(req, res) {
 	try {
 		const { userName } = req.query;
 
+		console.log(req);
+
 		// Find the user by userName
 		const user = await User.findOne({ userName });
 		if (!user) throw new Error("User doesn't exist");
