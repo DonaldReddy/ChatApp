@@ -1,11 +1,7 @@
 const services = [
 	{
 		route: "/user",
-		target: "http://localhost:3001/",
-	},
-	{
-		route: "/donald",
-		target: "http://donaldreddy.xyz",
+		target: "https://chatapp-user-service.onrender.com",
 	},
 ];
 
