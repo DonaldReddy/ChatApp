@@ -8,15 +8,22 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-const allowedOrigins = ["*.donaldreddy.xyz"];
+const allowedOrigins = ["donaldreddy.xyz", /\.donaldreddy\.xyz$/];
 const corsOptions = {
 	origin: function (origin, callback) {
 		// Allow requests with no origin (like mobile apps or curl requests)
-		console.log(origin);
+		console.log("Request origin:", origin);
 
 		if (!origin) return callback(null, true);
-		// Only allow whitelisted origins
-		if (allowedOrigins.some((domain) => new RegExp(domain).test(origin))) {
+
+		// Check if the origin is allowed
+		if (
+			allowedOrigins.some((allowedOrigin) => {
+				return typeof allowedOrigin === "string"
+					? origin === allowedOrigin
+					: allowedOrigin.test(origin);
+			})
+		) {
 			callback(null, true);
 		} else {
 			callback(new Error("Not allowed by CORS"));
