@@ -6,7 +6,6 @@ import moment from "moment-timezone";
 async function signUp(req, res) {
 	try {
 		const { userName, password, name } = req.body;
-		console.log(userName, password, name);
 
 		// Check if the user already exists
 		const existingUser = await User.findOne({ userName });
@@ -36,7 +35,6 @@ async function signUp(req, res) {
 async function signIn(req, res) {
 	try {
 		const { userName, password } = req.body;
-		console.log(userName, password);
 
 		// Find the user by userName
 		const user = await User.findOne({ userName });
@@ -60,7 +58,6 @@ async function signIn(req, res) {
 async function updateLastSeen(req, res, isHTTP = true) {
 	try {
 		const { userName } = req.body;
-		console.log(userName);
 
 		// Find the user by userName
 		const user = await User.findOne({ userName });
@@ -86,7 +83,6 @@ async function updateLastSeen(req, res, isHTTP = true) {
 async function getLastSeen(req, res) {
 	try {
 		const { userName } = req.query;
-		console.log(userName);
 
 		// Find the user by userName
 		const user = await User.findOne({ userName });
@@ -180,7 +176,6 @@ async function removeFriend(req, res) {
 async function blockUser(req, res) {
 	try {
 		const { userName, blockUserName } = req.body;
-		console.log(userName, blockUserName);
 
 		// Check if the user and blockUser are the same person
 		if (userName === blockUserName)
@@ -217,7 +212,6 @@ async function blockUser(req, res) {
 async function unblockUser(req, res) {
 	try {
 		const { userName, unblockUserName } = req.body;
-		console.log(userName, unblockUserName);
 
 		// Check if the user and unblockUser are the same person
 		if (userName === unblockUserName)
@@ -254,7 +248,6 @@ async function unblockUser(req, res) {
 async function blockGroup(req, res) {
 	try {
 		const { userName, blockUserName } = req.body;
-		console.log(userName, blockUserName);
 
 		// Check if the user and blockUser are the same person
 		if (userName === blockUserName)
@@ -291,7 +284,6 @@ async function blockGroup(req, res) {
 async function unblockGroup(req, res) {
 	try {
 		const { userName, unblockUserName } = req.body;
-		console.log(userName, unblockUserName);
 
 		// Check if the user and unblockUser are the same person
 		if (userName === unblockUserName)
