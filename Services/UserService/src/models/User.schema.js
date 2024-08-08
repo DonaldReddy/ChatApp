@@ -3,9 +3,13 @@ import moment from "moment-timezone";
 
 const UserSchema = new mongoose.Schema(
 	{
-		phoneNumber: {
+		userName: {
 			type: String,
 			unique: true,
+			required: true,
+		},
+		password: {
+			type: String,
 			required: true,
 		},
 		name: {
@@ -14,7 +18,6 @@ const UserSchema = new mongoose.Schema(
 		},
 		lastSeen: {
 			type: Date,
-			required: true,
 			default: () => moment().tz("Asia/Kolkata").toDate(),
 		},
 		friends: [
