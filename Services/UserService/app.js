@@ -12,6 +12,8 @@ const allowedOrigins = ["*.donaldreddy.xyz"];
 const corsOptions = {
 	origin: function (origin, callback) {
 		// Allow requests with no origin (like mobile apps or curl requests)
+		console.log(origin);
+
 		if (!origin) return callback(null, true);
 		// Only allow whitelisted origins
 		if (allowedOrigins.some((domain) => new RegExp(domain).test(origin))) {
