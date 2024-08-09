@@ -1,15 +1,8 @@
-import express from "express";
+import app from "./app.js";
 import { createProxyMiddleware } from "http-proxy-middleware";
-import cors from "cors";
 import services from "./services.js";
-import dotenv from "dotenv";
 
-dotenv.config();
-
-const app = express();
 const PORT = process.env.PORT || 3000;
-
-app.use(cors());
 
 services.forEach((service) => {
 	// Proxy options
@@ -25,6 +18,7 @@ services.forEach((service) => {
 	app.use(route, createProxyMiddleware(proxyOptions));
 });
 
-app.listen(3000, () => {
-	console.log("listening");
+
+app.listen(PORT, () => {
+	console.log(`Gateway is running at ${PORT}`);
 });
