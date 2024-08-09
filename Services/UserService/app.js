@@ -33,6 +33,11 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+app.use((req, res, next) => {
+	req.userName = req.headers["x-user-name"];
+	return next();
+});
+
 app.use("/api/v1/user", router);
 
 export default app;

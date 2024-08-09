@@ -1,6 +1,8 @@
 import User from "../models/User.schema.js";
 import bcrypt from "bcrypt";
 import moment from "moment-timezone";
+import axios from "axios";
+import { signJWT, signJWTRefresh } from "../../utils/generateJWT.utils.js";
 
 // Sign up a new user
 async function signUp(req, res) {
@@ -44,6 +46,33 @@ async function signIn(req, res) {
 		const isPasswordValid = await bcrypt.compare(password, user.password);
 		if (!isPasswordValid) throw new Error("Invalid credentials");
 
+		const ACCESS_TOKEN = signJWT(userName);
+		const REFRESH_TOKEN = signJWTRefresh(userName);
+
+		const response = await axios.post(
+			"http://localhost:3008/api/v1/session/create-session",
+			{
+				userName: userName,
+				refreshToken: REFRESH_TOKEN,
+			},
+		);
+
+		if (!response.data.status)
+			throw new Error("can't create session right now");
+
+		res.cookie("ACCESS_TOKEN", ACCESS_TOKEN, {
+			httpOnly: true,
+			sameSite: "None",
+			secure: true,
+			expires: new Date(Date.now() + 86400 * 1000),
+		});
+		res.cookie("REFRESH_TOKEN", REFRESH_TOKEN, {
+			httpOnly: true,
+			sameSite: "None",
+			secure: true,
+			expires: new Date(Date.now() + 14 * 86400 * 1000),
+		});
+
 		// Update lastSeen timestamp
 		await updateLastSeen(req, res, false);
 
@@ -59,6 +88,8 @@ async function updateLastSeen(req, res, isHTTP = true) {
 	try {
 		const { userName } = req.body;
 
+		if (req.userName != userName) throw new Error("Invalid user");
+
 		// Find the user by userName
 		const user = await User.findOne({ userName });
 		if (!user) throw new Error("User doesn't exist");
@@ -72,7 +103,7 @@ async function updateLastSeen(req, res, isHTTP = true) {
 				status: true,
 				data: { user: user.userName, lastSeen: user.lastSeen },
 			});
-		}
+		} else return;
 	} catch (error) {
 		console.log(error.message);
 		res.status(400).send({ status: false, error: error.message });
@@ -84,7 +115,7 @@ async function getLastSeen(req, res) {
 	try {
 		const { userName } = req.query;
 
-		console.log(req);
+		if (req.userName != userName) throw new Error("Invalid user");
 
 		// Find the user by userName
 		const user = await User.findOne({ userName });
@@ -104,6 +135,7 @@ async function getLastSeen(req, res) {
 async function addFriend(req, res) {
 	try {
 		const { userName, friendUserName } = req.body;
+		if (req.userName != userName) throw new Error("Invalid user");
 
 		// Check if the user and friend are the same person
 		if (userName === friendUserName)
@@ -141,6 +173,7 @@ async function addFriend(req, res) {
 async function removeFriend(req, res) {
 	try {
 		const { userName, friendUserName } = req.body;
+		if (req.userName != userName) throw new Error("Invalid user");
 
 		// Check if the user and friend are the same person
 		if (userName === friendUserName)
@@ -178,6 +211,7 @@ async function removeFriend(req, res) {
 async function blockUser(req, res) {
 	try {
 		const { userName, blockUserName } = req.body;
+		if (req.userName != userName) throw new Error("Invalid user");
 
 		// Check if the user and blockUser are the same person
 		if (userName === blockUserName)
@@ -214,7 +248,7 @@ async function blockUser(req, res) {
 async function unblockUser(req, res) {
 	try {
 		const { userName, unblockUserName } = req.body;
-
+		if (req.userName != userName) throw new Error("Invalid user");
 		// Check if the user and unblockUser are the same person
 		if (userName === unblockUserName)
 			throw new Error("User cannot unblock themselves.");
@@ -250,7 +284,7 @@ async function unblockUser(req, res) {
 async function blockGroup(req, res) {
 	try {
 		const { userName, blockUserName } = req.body;
-
+		if (req.userName != userName) throw new Error("Invalid user");
 		// Check if the user and blockUser are the same person
 		if (userName === blockUserName)
 			throw new Error("User cannot block themselves.");
@@ -286,7 +320,7 @@ async function blockGroup(req, res) {
 async function unblockGroup(req, res) {
 	try {
 		const { userName, unblockUserName } = req.body;
-
+		if (req.userName != userName) throw new Error("Invalid user");
 		// Check if the user and unblockUser are the same person
 		if (userName === unblockUserName)
 			throw new Error("User cannot unblock themselves.");
