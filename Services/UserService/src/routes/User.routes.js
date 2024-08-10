@@ -8,6 +8,7 @@ import {
 	removeFriend,
 	blockUser,
 	unblockUser,
+	signOut,
 } from "../controllers/User.controller.js";
 
 const router = Router();
@@ -16,6 +17,7 @@ router.get("/get-last-seen", getLastSeen);
 
 router.post("/sign-up", signUp);
 router.post("/sign-in", signIn);
+router.post("/sign-out", signOut);
 router.post("/update-last-seen", updateLastSeen);
 router.post("/add-friend", addFriend);
 router.post("/remove-friend", removeFriend);

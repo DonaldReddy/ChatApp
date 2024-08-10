@@ -1,9 +1,7 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import router from "./src/routes/User.routes.js";
-
-dotenv.config();
+import axios from "axios";
 
 const app = express();
 app.use(express.json());
@@ -12,8 +10,6 @@ const allowedOrigins = ["donaldreddy.xyz", /\.donaldreddy\.xyz$/];
 const corsOptions = {
 	origin: function (origin, callback) {
 		// Allow requests with no origin (like mobile apps or curl requests)
-		console.log("Request origin:", origin);
-
 		if (!origin) return callback(null, true);
 
 		// Check if the origin is allowed
@@ -34,7 +30,10 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.use((req, res, next) => {
+	if (!req.headers["x-user-name"] && !req.path.includes("sign"))
+		return res.send("Invalid Headers");
 	req.userName = req.headers["x-user-name"];
+	axios.defaults["X-User-Name"] = req.userName;
 	return next();
 });
 

@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import moment from "moment-timezone";
 import axios from "axios";
 import { signJWT, signJWTRefresh } from "../../utils/generateJWT.utils.js";
+import services from "../../services.js";
 
 // Sign up a new user
 async function signUp(req, res) {
@@ -50,7 +51,7 @@ async function signIn(req, res) {
 		const REFRESH_TOKEN = signJWTRefresh(userName);
 
 		const response = await axios.post(
-			"http://localhost:3008/api/v1/session/create-session",
+			`${services.session.target}/api/v1/session/create-session`,
 			{
 				userName: userName,
 				refreshToken: REFRESH_TOKEN,
@@ -83,12 +84,51 @@ async function signIn(req, res) {
 	}
 }
 
+// Sign out user
+async function signOut(req, res) {
+	try {
+		const { userName } = req.body;
+
+		if (req.userName != userName) throw new Error("Invalid user");
+
+		// delete session
+		const response = await axios.post(
+			`${services.session.target}/api/v1/session/delete-session`,
+			{
+				userName: userName,
+			},
+		);
+
+		if (!response.data.status)
+			throw new Error("can't delete session right now");
+
+		res.clearCookie("ACCESS_TOKEN", {
+			httpOnly: true,
+			sameSite: "None",
+			secure: true,
+		});
+		res.clearCookie("REFRESH_TOKEN", {
+			httpOnly: true,
+			sameSite: "None",
+			secure: true,
+		});
+
+		// Update lastSeen timestamp
+		await updateLastSeen(req, res, false);
+
+		res.status(200).send({ status: true });
+	} catch (error) {
+		console.log(error.message);
+		res.status(400).send({ status: false, error: error.message });
+	}
+}
+
 // Update lastSeen timestamp for a user
 async function updateLastSeen(req, res, isHTTP = true) {
 	try {
 		const { userName } = req.body;
 
-		if (req.userName != userName) throw new Error("Invalid user");
+		if (isHTTP && req.userName != userName) throw new Error("Invalid user");
 
 		// Find the user by userName
 		const user = await User.findOne({ userName });
@@ -135,6 +175,8 @@ async function getLastSeen(req, res) {
 async function addFriend(req, res) {
 	try {
 		const { userName, friendUserName } = req.body;
+		console.log(req.userName, userName);
+
 		if (req.userName != userName) throw new Error("Invalid user");
 
 		// Check if the user and friend are the same person
@@ -355,6 +397,7 @@ async function unblockGroup(req, res) {
 export {
 	signUp,
 	signIn,
+	signOut,
 	updateLastSeen,
 	getLastSeen,
 	addFriend,
