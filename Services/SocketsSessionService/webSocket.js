@@ -4,9 +4,11 @@ import app from "./app.js";
 
 const server = createServer(app);
 
-const io = new Server(server);
-
-console.log("cacacacac");
+const io = new Server(server, {
+	cors: {
+		origin: "*",
+	},
+});
 
 io.on("connection", (socket) => {
 	console.log(`New connection: ${socket.id}`);
