@@ -9,7 +9,7 @@ async function verifyJWT(req, res, next) {
 			"Access Token:",
 			ACCESS_TOKEN,
 			"\nRefresh Token:",
-			REFRESH_TOKEN
+			REFRESH_TOKEN,
 		);
 
 		if (!ACCESS_TOKEN) {
@@ -18,7 +18,7 @@ async function verifyJWT(req, res, next) {
 
 		const decodedAccessToken = jwt.verify(
 			ACCESS_TOKEN,
-			process.env.ACCESS_TOKEN_SECRET
+			process.env.ACCESS_TOKEN_SECRET,
 		);
 
 		console.log("Decoded Access Token:", decodedAccessToken);
@@ -28,7 +28,7 @@ async function verifyJWT(req, res, next) {
 		}
 
 		const { data: session } = await axios.get(
-			`http://localhost:3008/api/v1/session/get-session?userName=${decodedAccessToken.userName}`
+			`http://localhost:3008/api/v1/session/get-session?userName=${decodedAccessToken.userName}`,
 		);
 
 		if (!session.status) throw new Error("Session not found");
@@ -49,11 +49,11 @@ async function verifyJWT(req, res, next) {
 
 			const decodedRefreshToken = jwt.verify(
 				REFRESH_TOKEN,
-				process.env.REFRESH_TOKEN_SECRET
+				process.env.REFRESH_TOKEN_SECRET,
 			);
 
 			const { data: currentSession } = await axios.get(
-				`http://localhost:3008/api/v1/session/get-session?refreshToken=${REFRESH_TOKEN}`
+				`http://localhost:3008/api/v1/session/get-session?refreshToken=${REFRESH_TOKEN}`,
 			);
 
 			if (!currentSession.status) {
@@ -85,7 +85,7 @@ async function verifyJWT(req, res, next) {
 					`http://localhost:3008/api/v1/session/delete-session`,
 					{
 						refreshToken: req.cookies.REFRESH_TOKEN,
-					}
+					},
 				);
 			}
 
