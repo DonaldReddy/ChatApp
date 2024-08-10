@@ -1,3 +1,4 @@
+import "dotenv/config";
 import app from "./app.js";
 import dbConnect from "./src/dataBase/dbConnect.js";
 
@@ -7,7 +8,7 @@ async function startServer() {
 	try {
 		await dbConnect();
 		app.listen(PORT, async () => {
-			console.log(`User service running at ${PORT}`);
+			console.log(`Session service running at ${PORT}`);
 		});
 	} catch (error) {
 		console.error("Error connecting to the database:", error);
