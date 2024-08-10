@@ -13,9 +13,10 @@ const services = [
 	},
 	{
 		route: "/socket.io",
-		target: process.env.IS_DEV
-			? "http://localhost:3007/"
-			: "https://chatapp-websocket-service.onrender.com",
+		target:
+			process.env.IS_DEV == "true"
+				? "http://localhost:3007/"
+				: "https://chatapp-websocket-service.onrender.com",
 		type: "ws",
 	},
 ];
