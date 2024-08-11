@@ -16,6 +16,9 @@ io.on("connection", (socket) => {
 	socket.on("disconnect", () => {
 		console.log(socket.id, "disconnected");
 	});
+	socket.on("message", (message) => {
+		socket.emit("message", message);
+	});
 });
 
 export default server;
