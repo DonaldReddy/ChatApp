@@ -1,3 +1,3 @@
-import services from "../../services.js";
+const services = {};
 
 export default services;
