@@ -5,22 +5,21 @@ const FriendRequestSchema = new mongoose.Schema(
 		from: {
 			type: String,
 			required: true,
+			index: true, // Add index for performance
 		},
 		to: {
 			type: String,
 			required: true,
+			index: true, // Add index for performance
 		},
 		status: {
 			type: String,
-			enum: ["accepted", "rejected"],
-			required: true,
+			enum: ["accepted", "pending", "rejected", "canceled"],
+			default: "pending",
 		},
 	},
-	{ timestamps: true }
+	{ timestamps: true },
 );
-
-// Add an index on `from` and `to` for better query performance
-FriendRequestSchema.index({ from: 1, to: 1 }, { unique: true });
 
 const FriendRequest = mongoose.model("FriendRequest", FriendRequestSchema);
 

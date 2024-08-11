@@ -1,20 +1,28 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
-
-dotenv.config();
+import router from "./src/routes/FriendRequest.routes.js";
+import axios from "axios";
 
 const app = express();
 
-const allowedOrigins = ["*.donaldreddy.xyz"];
+app.use(express.json());
+
+const allowedOrigins = ["donaldreddy.xyz", /\.donaldreddy\.xyz$/];
 const corsOptions = {
 	origin: function (origin, callback) {
 		// Allow requests with no origin (like mobile apps or curl requests)
-		console.log(origin);
+		console.log("Request origin:", origin);
 
 		if (!origin) return callback(null, true);
-		// Only allow whitelisted origins
-		if (allowedOrigins.some((domain) => new RegExp(domain).test(origin))) {
+
+		// Check if the origin is allowed
+		if (
+			allowedOrigins.some((allowedOrigin) => {
+				return typeof allowedOrigin === "string"
+					? origin === allowedOrigin
+					: allowedOrigin.test(origin);
+			})
+		) {
 			callback(null, true);
 		} else {
 			callback(new Error("Not allowed by CORS"));
@@ -23,5 +31,15 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+app.use((req, res, next) => {
+	if (!req.headers["x-user-name"] && !req.path.includes("sign"))
+		return res.send("Invalid Headers");
+	req.userName = req.headers["x-user-name"];
+	axios.defaults.headers.common["x-user-name"] = req.userName;
+	return next();
+});
+
+app.use("/api/v1/friend-request", router);
 
 export default app;

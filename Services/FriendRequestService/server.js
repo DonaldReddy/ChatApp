@@ -1,3 +1,4 @@
+import "dotenv/config";
 import app from "./app.js";
 import dbConnect from "./src/dataBase/dbConnect.js";
 
@@ -9,7 +10,6 @@ async function startServer() {
 		app.listen(PORT, () => {
 			console.log(`Friend Request service running at ${PORT}`);
 		});
-
 	} catch (error) {
 		console.error("Error connecting to the database:", error);
 	}
