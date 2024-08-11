@@ -1,24 +1,21 @@
-import { Server } from "socket.io";
+import express from "express";
 import { createServer } from "http";
-import app from "./app.js";
+import { Server } from "socket.io";
+import cors from "cors";
+
+const app = express();
+
+app.use(cors());
 
 const server = createServer(app);
 
-const io = new Server(server, {
-	cors: {
-		origin: "*",
-	},
-});
+const io = new Server(server);
 
 io.on("connection", (socket) => {
-	console.log(`New connection: ${socket.id}`);
-
-	io.emit("message", "hi");
-
-	// Handle disconnection
+	console.log(socket.id);
 	socket.on("disconnect", () => {
-		console.log(`Disconnected: ${socket.id}`);
+		console.log(socket.id, "disconnected");
 	});
 });
 
-export { server };
+export default server;
