@@ -8,7 +8,18 @@ import cookieParser from "cookie-parser";
 
 const app = express();
 const server = createServer(app);
-const proxy = httpProxy.createProxyServer({ changeOrigin: true, ws: true });
+const proxy = httpProxy.createProxyServer({
+	changeOrigin: true,
+	timeout: 5000,
+});
+
+proxy.on("error", (err, req, res) => {
+	if (err.code === "ECONNRESET") {
+		res.end("The connection was reset. Please try again later.");
+	} else {
+		res.end("An error occurred while processing your request.");
+	}
+});
 
 // CORS configuration
 app.use(
@@ -42,7 +53,7 @@ Object.keys(services).forEach((service) => {
 		req.originalUrl;
 		console.log(req.url, req.originalUrl);
 
-		proxy.web(req, res, { target }, (err) => {
+		proxy.web(req, res, { target, ws: type == "ws" }, (err) => {
 			console.error(`Error proxying request to ${target}: ${err.message}`);
 			res.status(500).send("Proxy error");
 		});
@@ -51,10 +62,14 @@ Object.keys(services).forEach((service) => {
 
 // Handling WebSocket connections
 server.on("upgrade", (req, socket, head) => {
-	console.log("upgrade");
+	try {
+		console.log("upgrade");
 
-	const target = services.socketIO.target;
-	proxy.ws(req, socket, head, { target });
+		const target = services.socketIO.target;
+		proxy.ws(req, socket, head, { target });
+	} catch (error) {
+		console.log(error.message);
+	}
 });
 
 export default server;

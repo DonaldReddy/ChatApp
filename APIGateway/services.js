@@ -20,7 +20,7 @@ const services = {
 	socketIO: {
 		route: "/socket.io",
 		target: process.env.IS_DEV
-			? "http://localhost:3002/socket.io"
+			? "http://localhost:3007/socket.io"
 			: "https://chatapp-websocket-service.onrender.com/socket.io",
 		type: "ws",
 	},
