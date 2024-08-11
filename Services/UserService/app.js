@@ -33,7 +33,7 @@ app.use((req, res, next) => {
 	if (!req.headers["x-user-name"] && !req.path.includes("sign"))
 		return res.send("Invalid Headers");
 	req.userName = req.headers["x-user-name"];
-	axios.defaults["X-User-Name"] = req.userName;
+	axios.defaults.headers.common["x-user-name"] = req.userName;
 	return next();
 });
 
