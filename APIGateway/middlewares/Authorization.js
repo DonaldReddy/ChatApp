@@ -1,16 +1,10 @@
 import jwt from "jsonwebtoken";
 import axios from "axios";
+import services from "../services.js";
 
 async function verifyJWT(req, res, next) {
 	try {
 		const { ACCESS_TOKEN, REFRESH_TOKEN } = req.cookies;
-
-		console.log(
-			"Access Token:",
-			ACCESS_TOKEN,
-			"\nRefresh Token:",
-			REFRESH_TOKEN,
-		);
 
 		if (!ACCESS_TOKEN) {
 			throw new Error("Access token is missing");
@@ -21,14 +15,12 @@ async function verifyJWT(req, res, next) {
 			process.env.ACCESS_TOKEN_SECRET,
 		);
 
-		console.log("Decoded Access Token:", decodedAccessToken);
-
 		if (!decodedAccessToken) {
 			return res.status(401).send("Not authorized");
 		}
 
 		const { data: session } = await axios.get(
-			`http://localhost:3008/api/v1/session/get-session?userName=${decodedAccessToken.userName}`,
+			`${services.session.target}/api/v1/session/get-session?userName=${decodedAccessToken.userName}`,
 		);
 
 		if (!session.status) throw new Error("Session not found");
@@ -53,7 +45,7 @@ async function verifyJWT(req, res, next) {
 			);
 
 			const { data: currentSession } = await axios.get(
-				`http://localhost:3008/api/v1/session/get-session?refreshToken=${REFRESH_TOKEN}`,
+				`${services.session.target}/api/v1/session/get-session?refreshToken=${REFRESH_TOKEN}`,
 			);
 
 			if (!currentSession.status) {
@@ -82,7 +74,7 @@ async function verifyJWT(req, res, next) {
 
 			if (req.cookies.REFRESH_TOKEN) {
 				await axios.post(
-					`http://localhost:3008/api/v1/session/delete-session`,
+					`${services.session.target}/api/v1/session/delete-session`,
 					{
 						refreshToken: req.cookies.REFRESH_TOKEN,
 					},

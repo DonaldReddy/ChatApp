@@ -1,54 +1,60 @@
 import express from "express";
 import cors from "cors";
-import { createProxyMiddleware, loggerPlugin } from "http-proxy-middleware";
-import services from "./services.js";
+import httpProxy from "http-proxy";
+import { createServer } from "http";
+import services from "../services.js";
 import { verifyJWT } from "./middlewares/Authorization.js";
 import cookieParser from "cookie-parser";
 
 const app = express();
+const server = createServer(app);
+const proxy = httpProxy.createProxyServer({ changeOrigin: true, ws: true });
 
 // CORS configuration
 app.use(
 	cors({
 		credentials: true,
-		origin: "*", // Adjust CORS policy as needed
+		origin: "*",
 	}),
 );
 
 app.use(cookieParser());
 
 // Apply verifyJWT middleware globally, except for specific routes
+const skipJWTVerification = ["/sign-in", "/sign-up", "/socket.io"];
 app.use((req, res, next) => {
 	if (
-		req.path.includes("/sign") ||
-		req.path === "/" ||
-		req.path.includes("/socket.io/")
+		skipJWTVerification.some((value) => req.path.includes(value)) ||
+		req.path === "/"
 	) {
 		return next(); // Skip JWT verification for these routes
 	}
 	verifyJWT(req, res, next); // Apply JWT verification for all other routes
 });
 
-// Proxy setup
-const simpleRequestLogger = (proxyServer, options) => {
-	proxyServer.on("proxyReq", (proxyReq, req, res) => {
-		console.log(`Request: ${req.method} ${req.originalUrl}`);
-		console.log(`Proxying to: ${proxyReq.headers?.host}${proxyReq.path}`);
-	});
-};
-
-services.forEach((service) => {
-	const { route, target, type } = service;
-	const proxyOptions = {
-		target,
-		changeOrigin: true,
-		ws: type === "ws",
-		logLevel: "debug",
-		plugins: [loggerPlugin, simpleRequestLogger],
-	};
+// Set up proxies
+Object.keys(services).forEach((service) => {
+	const { route, target, type } = services[service];
 
 	console.log(`Setting up proxy for ${route} to ${target}`);
-	app.use(route, createProxyMiddleware(proxyOptions));
+
+	app.use(route, (req, res) => {
+		req.originalUrl;
+		console.log(req.url, req.originalUrl);
+
+		proxy.web(req, res, { target }, (err) => {
+			console.error(`Error proxying request to ${target}: ${err.message}`);
+			res.status(500).send("Proxy error");
+		});
+	});
 });
 
-export default app;
+// Handling WebSocket connections
+server.on("upgrade", (req, socket, head) => {
+	console.log("upgrade");
+
+	const target = services.socketIO.target;
+	proxy.ws(req, socket, head, { target });
+});
+
+export default server;
