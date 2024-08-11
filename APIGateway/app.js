@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import httpProxy from "http-proxy";
 import { createServer } from "http";
-import services from "../services.js";
+import services from "./services.js";
 import { verifyJWT } from "./middlewares/Authorization.js";
 import cookieParser from "cookie-parser";
 
