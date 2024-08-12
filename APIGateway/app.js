@@ -58,8 +58,6 @@ Object.keys(services).forEach((service) => {
 
 	app.use(route, (req, res) => {
 		req.originalUrl;
-		console.log(req.url, req.originalUrl);
-
 		proxy.web(req, res, { target, ws: type == "ws" }, (err) => {
 			console.error(`Error proxying request to ${target}: ${err.message}`);
 			res.status(500).send("Proxy error");
