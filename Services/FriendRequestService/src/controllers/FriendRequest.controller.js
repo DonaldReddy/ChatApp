@@ -7,9 +7,6 @@ async function sendFriendRequest(req, res) {
 	try {
 		const { userName, friendUserName } = req.body;
 
-		// Ensure the authenticated user is the one making the request
-		if (req.userName !== userName) throw new Error("Invalid user");
-
 		// Prevent users from sending a friend request to themselves
 		if (userName === friendUserName)
 			throw new Error("Cannot send a request to yourself");
@@ -55,12 +52,6 @@ async function acceptFriendRequest(req, res) {
 		// Check if the friend request exists in the database
 		if (!existingFriendRequest) throw new Error("Friend request doesn't exist");
 
-		// Verify that the authenticated user is the intended recipient of the friend request
-		console.log(req.userName);
-
-		if (req.userName !== existingFriendRequest.to)
-			throw new Error("Invalid user");
-
 		// Make an API call to the user service to add the user as a friend
 		const response = await axios.post(
 			`${services.user.target}/api/v1/user/add-friend`,
@@ -100,10 +91,6 @@ async function cancelFriendRequest(req, res) {
 		// Check if the friend request exists in the database
 		if (!existingFriendRequest) throw new Error("Friend request doesn't exist");
 
-		// Verify that the authenticated user is the sender of the friend request
-		if (req.userName !== existingFriendRequest.from)
-			throw new Error("Invalid user");
-
 		// Delete the friend request from the database
 		await existingFriendRequest.deleteOne();
 
@@ -129,10 +116,6 @@ async function rejectFriendRequest(req, res) {
 		// Check if the friend request exists
 		if (!existingFriendRequest) throw new Error("Friend request doesn't exist");
 
-		// Ensure that the authenticated user is the recipient of the friend request
-		if (req.userName !== existingFriendRequest.to)
-			throw new Error("Invalid user");
-
 		// Update the status of the friend request to "rejected"
 		existingFriendRequest.status = "rejected";
 
@@ -155,9 +138,6 @@ async function getSentFriendRequests(req, res) {
 	try {
 		const { userName } = req.query;
 
-		// Ensure that the authenticated user is the same as the user requesting the information
-		if (req.userName !== userName) throw new Error("Invalid user");
-
 		// Find all friend requests sent by the specified user
 		const friendRequests = await FriendRequest.find({
 			from: userName, // Use "from" to filter friend requests sent by the user
@@ -178,9 +158,6 @@ async function getSentFriendRequests(req, res) {
 async function getReceivedFriendRequests(req, res) {
 	try {
 		const { userName } = req.query;
-
-		// Ensure that the authenticated user is the same as the user requesting the information
-		if (req.userName !== userName) throw new Error("Invalid user");
 
 		// Find all friend requests received by the specified user
 		const friendRequests = await FriendRequest.find({

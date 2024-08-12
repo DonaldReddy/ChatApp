@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import router from "./src/routes/Session.routes.js";
+import axios from "axios";
 
 const app = express();
 app.use(express.json());

@@ -29,14 +29,6 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-app.use((req, res, next) => {
-	if (!req.headers["x-user-name"] && !req.path.includes("sign"))
-		return res.send("Invalid Headers");
-	req.userName = req.headers["x-user-name"];
-	axios.defaults.headers.common["x-user-name"] = req.userName;
-	return next();
-});
-
 app.use("/api/v1/user", router);
 
 export default app;

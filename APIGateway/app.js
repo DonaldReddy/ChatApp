@@ -63,9 +63,7 @@ Object.keys(services).forEach((service) => {
 // Handling WebSocket connections
 server.on("upgrade", (req, socket, head) => {
 	try {
-		console.log("upgrade");
-
-		const target = services.socketIO.target;
+		const target = services.ws.target;
 		proxy.ws(req, socket, head, { target });
 	} catch (error) {
 		console.log(error.message);

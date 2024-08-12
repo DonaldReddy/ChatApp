@@ -17,12 +17,18 @@ const services = {
 			? "http://localhost:3008"
 			: "https://chatapp-user-service.onrender.com",
 	},
-	socketIO: {
+	ws: {
 		route: "/socket.io",
 		target: process.env.IS_DEV
-			? "http://localhost:3007/socket.io"
+			? "http://localhost:3009/socket.io"
 			: "https://chatapp-websocket-service.onrender.com/socket.io",
 		type: "ws",
+	},
+	wsSession: {
+		route: "/ws-session",
+		target: process.env.IS_DEV
+			? "http://localhost:3007"
+			: "https://chatapp-websocket-service.onrender.com/socket.io",
 	},
 };
 

@@ -1,7 +1,7 @@
 import app from "./app.js";
 import dbConnect from "./src/dataBase/dbConnect.js";
 
-const PORT = process.env.PORT || 3005;
+const PORT = process.env.PORT || 3003;
 
 async function startServer() {
 	try {

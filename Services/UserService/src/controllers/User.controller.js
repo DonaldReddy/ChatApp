@@ -89,8 +89,6 @@ async function signOut(req, res) {
 	try {
 		const { userName } = req.body;
 
-		if (req.userName != userName) throw new Error("Invalid user");
-
 		// delete session
 		const response = await axios.post(
 			`${services.session.target}/api/v1/session/delete-session`,
@@ -128,8 +126,6 @@ async function updateLastSeen(req, res, isHTTP = true) {
 	try {
 		const { userName } = req.body;
 
-		if (isHTTP && req.userName != userName) throw new Error("Invalid user");
-
 		// Find the user by userName
 		const user = await User.findOne({ userName });
 		if (!user) throw new Error("User doesn't exist");
@@ -155,8 +151,6 @@ async function getLastSeen(req, res) {
 	try {
 		const { userName } = req.query;
 
-		if (req.userName != userName) throw new Error("Invalid user");
-
 		// Find the user by userName
 		const user = await User.findOne({ userName });
 		if (!user) throw new Error("User doesn't exist");
@@ -175,9 +169,6 @@ async function getLastSeen(req, res) {
 async function addFriend(req, res) {
 	try {
 		const { userName, friendUserName } = req.body;
-		console.log(req.userName, userName);
-
-		if (req.userName != userName) throw new Error("Invalid user");
 
 		// Check if the user and friend are the same person
 		if (userName === friendUserName)
@@ -215,7 +206,6 @@ async function addFriend(req, res) {
 async function removeFriend(req, res) {
 	try {
 		const { userName, friendUserName } = req.body;
-		if (req.userName != userName) throw new Error("Invalid user");
 
 		// Check if the user and friend are the same person
 		if (userName === friendUserName)
@@ -253,7 +243,6 @@ async function removeFriend(req, res) {
 async function blockUser(req, res) {
 	try {
 		const { userName, blockUserName } = req.body;
-		if (req.userName != userName) throw new Error("Invalid user");
 
 		// Check if the user and blockUser are the same person
 		if (userName === blockUserName)
@@ -290,7 +279,6 @@ async function blockUser(req, res) {
 async function unblockUser(req, res) {
 	try {
 		const { userName, unblockUserName } = req.body;
-		if (req.userName != userName) throw new Error("Invalid user");
 		// Check if the user and unblockUser are the same person
 		if (userName === unblockUserName)
 			throw new Error("User cannot unblock themselves.");
@@ -326,7 +314,6 @@ async function unblockUser(req, res) {
 async function blockGroup(req, res) {
 	try {
 		const { userName, blockUserName } = req.body;
-		if (req.userName != userName) throw new Error("Invalid user");
 		// Check if the user and blockUser are the same person
 		if (userName === blockUserName)
 			throw new Error("User cannot block themselves.");
@@ -362,7 +349,6 @@ async function blockGroup(req, res) {
 async function unblockGroup(req, res) {
 	try {
 		const { userName, unblockUserName } = req.body;
-		if (req.userName != userName) throw new Error("Invalid user");
 		// Check if the user and unblockUser are the same person
 		if (userName === unblockUserName)
 			throw new Error("User cannot unblock themselves.");

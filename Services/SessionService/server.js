@@ -2,7 +2,7 @@ import "dotenv/config";
 import app from "./app.js";
 import dbConnect from "./src/dataBase/dbConnect.js";
 
-const PORT = process.env.PORT || 3008;
+const PORT = process.env.PORT || 3006;
 
 async function startServer() {
 	try {

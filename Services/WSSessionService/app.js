@@ -1,16 +1,16 @@
 import express from "express";
 import cors from "cors";
-import router from "./src/routes/Chat.routes.js";
+import router from "./src/routes/ws.routes.js";
+import axios from "axios";
 
 const app = express();
+
 app.use(express.json());
 
 const allowedOrigins = ["donaldreddy.xyz", /\.donaldreddy\.xyz$/];
 const corsOptions = {
 	origin: function (origin, callback) {
 		// Allow requests with no origin (like mobile apps or curl requests)
-		console.log("Request origin:", origin);
-
 		if (!origin) return callback(null, true);
 
 		// Check if the origin is allowed
@@ -30,6 +30,6 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-app.use("/api/v1/chat", router);
+app.use("/api/v1/ws-session", router);
 
 export default app;

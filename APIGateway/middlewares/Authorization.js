@@ -25,11 +25,6 @@ async function verifyJWT(req, res, next) {
 
 		if (!session.status) throw new Error("Session not found");
 
-		req.userName = decodedAccessToken.userName;
-		console.log(req.userName);
-
-		req.headers["X-User-Name"] = decodedAccessToken.userName;
-
 		return next();
 	} catch (accessError) {
 		console.log("Access token verification failed:", accessError.message);
@@ -67,7 +62,6 @@ async function verifyJWT(req, res, next) {
 				expires: new Date(Date.now() + 86400 * 1000), // 1 day
 			});
 
-			req.userName = decodedRefreshToken.userName;
 			return next();
 		} catch (refreshError) {
 			console.log("Refresh token verification failed:", refreshError.message);
