@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import router from "./src/routes/ws.routes.js";
+import router from "./src/routes/WSSession.routes.js";
 import axios from "axios";
 
 const app = express();
