@@ -25,7 +25,7 @@ proxy.on("error", (err, req, res) => {
 app.use(
 	cors({
 		credentials: true,
-		origin: "*",
+		origin: /\.donaldreddy\.xyz$/,
 	}),
 );
 
