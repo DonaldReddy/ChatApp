@@ -15,7 +15,7 @@ const services = {
 		route: "/session",
 		target: process.env.IS_DEV
 			? "http://localhost:3008"
-			: "https://chatapp-user-service.onrender.com",
+			: "https://chatapp-session-service.onrender.com",
 	},
 	ws: {
 		route: "/socket.io",
