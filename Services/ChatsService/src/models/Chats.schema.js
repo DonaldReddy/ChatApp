@@ -14,7 +14,6 @@ const ChatSchema = new mongoose.Schema(
 		},
 		participants: {
 			type: [String],
-			required: true,
 			default: [],
 		},
 		noOfParticipants: {
