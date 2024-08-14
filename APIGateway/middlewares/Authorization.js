@@ -28,7 +28,7 @@ async function verifyJWT(req, res, next) {
 		return next();
 	} catch (accessError) {
 		console.log("Access token verification failed:", accessError.message);
-
+		const { REFRESH_TOKEN } = req.cookies;
 		try {
 			if (!REFRESH_TOKEN) {
 				throw new Error("Refresh token is missing");
@@ -64,30 +64,34 @@ async function verifyJWT(req, res, next) {
 
 			return next();
 		} catch (refreshError) {
-			console.log("Refresh token verification failed:", refreshError.message);
+			try {
+				console.log("Refresh token verification failed:", refreshError.message);
 
-			if (req.cookies.REFRESH_TOKEN) {
-				await axios.post(
-					`${services.session.target}/api/v1/session/delete-session`,
-					{
-						refreshToken: req.cookies.REFRESH_TOKEN,
-					},
-				);
+				if (req.cookies.REFRESH_TOKEN) {
+					await axios.post(
+						`${services.session.target}/api/v1/session/delete-session`,
+						{
+							refreshToken: req.cookies.REFRESH_TOKEN,
+						},
+					);
+				}
+
+				// Clear tokens
+				res.clearCookie("ACCESS_TOKEN", {
+					httpOnly: true,
+					sameSite: "None",
+					secure: true,
+				});
+				res.clearCookie("REFRESH_TOKEN", {
+					httpOnly: true,
+					sameSite: "None",
+					secure: true,
+				});
+
+				return res.status(401).send("Session expired");
+			} catch (error) {
+				res.send("Invalid request");
 			}
-
-			// Clear tokens
-			res.clearCookie("ACCESS_TOKEN", {
-				httpOnly: true,
-				sameSite: "None",
-				secure: true,
-			});
-			res.clearCookie("REFRESH_TOKEN", {
-				httpOnly: true,
-				sameSite: "None",
-				secure: true,
-			});
-
-			return res.status(401).send("Session expired");
 		}
 	}
 }
