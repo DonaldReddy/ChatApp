@@ -2,33 +2,32 @@ import mongoose from "mongoose";
 
 const GroupSchema = new mongoose.Schema(
 	{
-		chatId: {
+		groupChatId: {
 			type: String,
 			required: true,
 			unique: true,
 		},
-		owner: {
+		groupOwner: {
 			type: String,
 			required: true,
 		},
-		admins: {
+		groupAdmins: {
 			type: [String],
-			required: true,
 			default: [], // Default to an empty array
 		},
-		name: {
+		groupName: {
 			type: String,
 			required: true,
 		},
 	},
-	{ timestamps: true }
+	{ timestamps: true },
 );
 
 // Pre-save middleware to ensure owner is in admins array
 GroupSchema.pre("save", function (next) {
 	if (this.isNew) {
 		// Only add owner if this is a new document
-		this.admins.push(this.owner);
+		this.groupAdmins.push(this.groupOwner);
 	}
 	next();
 });
