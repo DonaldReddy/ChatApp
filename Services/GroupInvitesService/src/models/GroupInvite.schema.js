@@ -10,17 +10,22 @@ const GroupInviteSchema = new mongoose.Schema(
 			type: String,
 			required: true,
 		},
+		groupName: {
+			type: String,
+			required: true,
+		},
 		groupId: {
 			type: String,
 			required: true,
 		},
 		status: {
 			type: String,
-			enum: ["accepted", "rejected"],
+			enum: ["accepted", "pending", "rejected"],
 			required: true,
+			default: "pending",
 		},
 	},
-	{ timestamps: true }
+	{ timestamps: true },
 );
 
 const GroupInvite = mongoose.model("GroupInvite", GroupInviteSchema);

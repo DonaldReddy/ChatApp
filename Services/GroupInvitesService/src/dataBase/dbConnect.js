@@ -6,6 +6,6 @@ export default async function dbConnect() {
 		await mongoose.connect(process.env.DB_URI);
 		console.log("connected to Group Invite DB");
 	} catch (error) {
-		console.log(error);
+		console.log(error.message);
 	}
 }
