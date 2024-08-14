@@ -44,10 +44,10 @@ async function sendFriendRequest(req, res) {
 // accept friend request sent by another user
 async function acceptFriendRequest(req, res) {
 	try {
-		const { friendRequestID } = req.body;
+		const { friendRequestId } = req.body;
 
 		// Find the friend request by its ID
-		const existingFriendRequest = await FriendRequest.findById(friendRequestID);
+		const existingFriendRequest = await FriendRequest.findById(friendRequestId);
 
 		// Check if the friend request exists in the database
 		if (!existingFriendRequest) throw new Error("Friend request doesn't exist");
@@ -83,10 +83,10 @@ async function acceptFriendRequest(req, res) {
 // withdraw / cancel sent friend request
 async function cancelFriendRequest(req, res) {
 	try {
-		const { friendRequestID } = req.body;
+		const { friendRequestId } = req.body;
 
 		// Find the friend request by its ID
-		const existingFriendRequest = await FriendRequest.findById(friendRequestID);
+		const existingFriendRequest = await FriendRequest.findById(friendRequestId);
 
 		// Check if the friend request exists in the database
 		if (!existingFriendRequest) throw new Error("Friend request doesn't exist");
@@ -108,10 +108,10 @@ async function cancelFriendRequest(req, res) {
 // reject friend request sent by another user
 async function rejectFriendRequest(req, res) {
 	try {
-		const { friendRequestID } = req.body;
+		const { friendRequestId } = req.body;
 
 		// Find the friend request by ID
-		const existingFriendRequest = await FriendRequest.findById(friendRequestID);
+		const existingFriendRequest = await FriendRequest.findById(friendRequestId);
 
 		// Check if the friend request exists
 		if (!existingFriendRequest) throw new Error("Friend request doesn't exist");
