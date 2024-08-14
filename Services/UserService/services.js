@@ -8,7 +8,7 @@ const services = {
 	session: {
 		route: "/session",
 		target: process.env.IS_DEV
-			? "http://localhost:3008"
+			? "http://localhost:3006"
 			: "https://chatapp-session-service.onrender.com",
 	},
 };
