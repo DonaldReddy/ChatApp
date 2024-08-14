@@ -19,7 +19,7 @@ io.on("connection", (socket) => {
 			await axios.post(
 				`${services.wsSession.target}/api/v1/ws-session/delete-ws-session`,
 				{
-					wsID: socket.id,
+					wsId: socket.id,
 				},
 			);
 			console.log("deleted ws session for " + socket.id);
