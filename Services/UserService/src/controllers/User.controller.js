@@ -24,6 +24,33 @@ async function signUp(req, res) {
 			name,
 		});
 
+		const ACCESS_TOKEN = signJWT(userName);
+		const REFRESH_TOKEN = signJWTRefresh(userName);
+
+		const response = await axios.post(
+			`${services.session.target}/api/v1/session/create-session`,
+			{
+				userName: userName,
+				refreshToken: REFRESH_TOKEN,
+			},
+		);
+
+		if (!response.data.status)
+			throw new Error("can't create session right now");
+
+		res.cookie("ACCESS_TOKEN", ACCESS_TOKEN, {
+			httpOnly: true,
+			sameSite: "None",
+			secure: true,
+			expires: new Date(Date.now() + 86400 * 1000),
+		});
+		res.cookie("REFRESH_TOKEN", REFRESH_TOKEN, {
+			httpOnly: true,
+			sameSite: "None",
+			secure: true,
+			expires: new Date(Date.now() + 14 * 86400 * 1000),
+		});
+
 		// Save the user to the database
 		await newUser.save();
 
@@ -38,6 +65,8 @@ async function signUp(req, res) {
 async function signIn(req, res) {
 	try {
 		const { userName, password } = req.body;
+
+		console.log(req.body);
 
 		// Find the user by userName
 		const user = await User.findOne({ userName });

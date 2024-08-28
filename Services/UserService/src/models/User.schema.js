@@ -20,21 +20,11 @@ const UserSchema = new mongoose.Schema(
 			type: Date,
 			default: () => moment().tz("Asia/Kolkata").toDate(),
 		},
-		friends: [
-			{
-				type: mongoose.Schema.Types.ObjectId,
-				ref: "User",
-			},
-		],
-		blockedUsers: [
-			{
-				type: mongoose.Schema.Types.ObjectId,
-				ref: "User",
-			},
-		],
+		friends: [String],
+		blockedUsers: [String],
 		blockedGroups: { type: [String], default: [] },
 	},
-	{ timestamps: true }
+	{ timestamps: true },
 );
 
 const User = mongoose.model("User", UserSchema);
