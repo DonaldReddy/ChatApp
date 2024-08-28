@@ -11,7 +11,7 @@ const services = {
 		target:
 			process.env.IS_DEV == "true"
 				? "http://localhost:3006"
-				: "https://chatapp-session-service.onrender.com",
+				: "https://session.services.hola.donaldreddy.xyz",
 	},
 };
 
