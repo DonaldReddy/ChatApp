@@ -27,10 +27,16 @@ app.use(
 		credentials: true,
 		origin: function (origin, callback) {
 			console.log(origin);
-			if (!origin || /\.donaldreddy\.xyz$/.test(origin)) {
+			console.log(/\.donaldreddy\.xyz$/.test(origin));
+
+			if (
+				!origin ||
+				/\.donaldreddy\.xyz$/.test(origin) ||
+				(typeof origin === "string" ? origin.includes("localhost") : false)
+			) {
 				callback(null, true);
 			} else {
-				callback(new Error("Not allowed by CORS"));
+				callback("Not allowed by CORS");
 			}
 		},
 	}),
@@ -57,7 +63,6 @@ Object.keys(services).forEach((service) => {
 	console.log(`Setting up proxy for ${route} to ${target}`);
 
 	app.use(route, (req, res) => {
-		req.originalUrl;
 		proxy.web(req, res, { target, ws: type == "ws" }, (err) => {
 			console.error(`Error proxying request to ${target}: ${err.message}`);
 			res.status(500).send("Proxy error");
