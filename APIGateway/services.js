@@ -16,7 +16,7 @@ const services = {
 	groupInvites: {
 		route: "/group-invite",
 		target:
-			process.env.process.env.IS_DEV == "true"
+			process.env.IS_DEV == "true"
 				? "http://localhost:3003"
 				: "https://chatapp-websocket-service.onrender.com/socket.io",
 	},
