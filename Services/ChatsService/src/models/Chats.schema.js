@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
+import { Schema, model } from "mongoose";
 
-const ChatSchema = new mongoose.Schema(
+const ChatSchema = new Schema(
 	{
 		createdBy: {
 			type: String,
@@ -37,6 +37,6 @@ ChatSchema.pre("save", function (next) {
 	next();
 });
 
-const Chat = mongoose.model("Chat", ChatSchema);
+const Chat = model("Chat", ChatSchema);
 
 export default Chat;

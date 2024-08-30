@@ -2,15 +2,17 @@ import { Router } from "express";
 import {
 	createNewChatAndSendMessage,
 	createNewGroupChat,
-	getRecentChats,
+	getRecentPrivateChats,
 	getChat,
 	addMemberToChat,
 	removeMemberFromChat,
+	getRecentGroupChats,
 } from "../controllers/Chat.controller.js";
 
 const router = Router();
 
-router.get("/get-recent-chats", getRecentChats);
+router.get("/get-recent-private-chats", getRecentPrivateChats);
+router.get("/get-recent-group-chats", getRecentGroupChats);
 router.get("/get-chat", getChat);
 
 router.post("/create-new-group-chat", createNewGroupChat);

@@ -70,7 +70,9 @@ async function demoteToMember(req, res) {
 async function getGroup(req, res) {
 	try {
 		const { groupId } = req.query;
-		const existingGroup = await Group.findById(new ObjectId(groupId));
+		const existingGroup = await Group.findOne({
+			groupChatId: new ObjectId(groupId),
+		});
 		if (!existingGroup) throw new Error("Invalid Group Id");
 		res.status(200).send({ status: true, group: existingGroup });
 	} catch (error) {
