@@ -42,4 +42,14 @@ async function deleteSession(req, res) {
 	}
 }
 
-export { createSession, getSession, deleteSession };
+async function validateSession(req, res) {
+	try {
+		const { userName } = req?.body;
+		const session = await Session.findOne({ userName });
+		res.status(200).send({ status: session ? true : false });
+	} catch (error) {
+		res.status(400).send({ status: false, error: error.message });
+	}
+}
+
+export { createSession, getSession, deleteSession, validateSession };
