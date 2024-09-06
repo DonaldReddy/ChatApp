@@ -5,6 +5,38 @@ import axios from "axios";
 import { signJWT, signJWTRefresh } from "../../utils/generateJWT.utils.js";
 import services from "../../services.js";
 
+// Get user profile
+// Get user profile
+async function getProfile(req, res) {
+	try {
+		const { userName } = req.query;
+
+		// Ensure the userName is indexed in MongoDB for faster queries
+		const user = await User.findOne({ userName })
+			.select("name userName friends")
+			.lean(); // Use lean() for better performance when Mongoose document methods aren't needed
+
+		if (!user) {
+			return res
+				.status(404)
+				.send({ status: false, error: "User doesn't exist" });
+		}
+
+		const { name, friends } = user;
+
+		res.status(200).send({
+			status: true,
+			profile: {
+				name,
+				userName,
+				numberOfFriends: friends.length,
+			},
+		});
+	} catch (error) {
+		res.status(500).send({ status: false, error: error.message });
+	}
+}
+
 // Sign up a new user
 async function signUp(req, res) {
 	try {
@@ -12,7 +44,10 @@ async function signUp(req, res) {
 
 		// Check if the user already exists
 		const existingUser = await User.findOne({ userName });
-		if (existingUser) throw new Error("User already exists");
+		if (existingUser)
+			return res
+				.status(400)
+				.send({ status: false, error: "User already exists" });
 
 		// Hash the password before saving
 		const hashedPassword = await bcrypt.hash(password, 10);
@@ -36,7 +71,7 @@ async function signUp(req, res) {
 		);
 
 		if (!response.data.status)
-			throw new Error("can't create session right now");
+			throw new Error("Can't create session right now");
 
 		res.cookie("ACCESS_TOKEN", ACCESS_TOKEN, {
 			httpOnly: true,
@@ -56,8 +91,7 @@ async function signUp(req, res) {
 
 		res.status(200).send({ status: true, data: { user: newUser.userName } });
 	} catch (error) {
-		console.log(error.message);
-		res.status(400).send({ status: false, error: error.message });
+		res.status(500).send({ status: false, error: error.message });
 	}
 }
 
@@ -66,15 +100,19 @@ async function signIn(req, res) {
 	try {
 		const { userName, password } = req.body;
 
-		console.log(req.body);
-
 		// Find the user by userName
 		const user = await User.findOne({ userName });
-		if (!user) throw new Error("User doesn't exist");
+		if (!user)
+			return res
+				.status(404)
+				.send({ status: false, error: "User doesn't exist" });
 
 		// Compare the provided password with the stored hash
 		const isPasswordValid = await bcrypt.compare(password, user.password);
-		if (!isPasswordValid) throw new Error("Invalid credentials");
+		if (!isPasswordValid)
+			return res
+				.status(401)
+				.send({ status: false, error: "Invalid credentials" });
 
 		const ACCESS_TOKEN = signJWT(userName);
 		const REFRESH_TOKEN = signJWTRefresh(userName);
@@ -88,7 +126,7 @@ async function signIn(req, res) {
 		);
 
 		if (!response.data.status)
-			throw new Error("can't create session right now");
+			throw new Error("Can't create session right now");
 
 		res.cookie("ACCESS_TOKEN", ACCESS_TOKEN, {
 			httpOnly: true,
@@ -108,8 +146,7 @@ async function signIn(req, res) {
 
 		res.status(200).send({ status: true, data: { user: user.userName } });
 	} catch (error) {
-		console.log(error.message);
-		res.status(400).send({ status: false, error: error.message });
+		res.status(500).send({ status: false, error: error.message });
 	}
 }
 
@@ -118,7 +155,7 @@ async function signOut(req, res) {
 	try {
 		const { userName } = req.body;
 
-		// delete session
+		// Delete session
 		const response = await axios.post(
 			`${services.session.target}/api/v1/session/delete-session`,
 			{
@@ -127,7 +164,7 @@ async function signOut(req, res) {
 		);
 
 		if (!response.data.status)
-			throw new Error("can't delete session right now");
+			throw new Error("Can't delete session right now");
 
 		res.clearCookie("ACCESS_TOKEN", {
 			httpOnly: true,
@@ -145,8 +182,7 @@ async function signOut(req, res) {
 
 		res.status(200).send({ status: true });
 	} catch (error) {
-		console.log(error.message);
-		res.status(400).send({ status: false, error: error.message });
+		res.status(500).send({ status: false, error: error.message });
 	}
 }
 
@@ -157,7 +193,10 @@ async function updateLastSeen(req, res, isHTTP = true) {
 
 		// Find the user by userName
 		const user = await User.findOne({ userName });
-		if (!user) throw new Error("User doesn't exist");
+		if (!user)
+			return res
+				.status(404)
+				.send({ status: false, error: "User doesn't exist" });
 
 		// Update lastSeen to the current time
 		user.lastSeen = moment().tz("Asia/Kolkata").toDate();
@@ -168,10 +207,9 @@ async function updateLastSeen(req, res, isHTTP = true) {
 				status: true,
 				data: { user: user.userName, lastSeen: user.lastSeen },
 			});
-		} else return;
+		}
 	} catch (error) {
-		console.log(error.message);
-		res.status(400).send({ status: false, error: error.message });
+		res.status(500).send({ status: false, error: error.message });
 	}
 }
 
@@ -182,15 +220,160 @@ async function getLastSeen(req, res) {
 
 		// Find the user by userName
 		const user = await User.findOne({ userName });
-		if (!user) throw new Error("User doesn't exist");
+		if (!user)
+			return res
+				.status(404)
+				.send({ status: false, error: "User doesn't exist" });
 
 		res.status(200).send({
 			status: true,
 			data: { user: user.userName, lastSeen: user.lastSeen },
 		});
 	} catch (error) {
-		console.log(error.message);
-		res.status(400).send({ status: false, error: error.message });
+		res.status(500).send({ status: false, error: error.message });
+	}
+}
+
+// Get all friends of user
+async function getAllFriends(req, res) {
+	try {
+		const { userName, search } = req.query;
+
+		// Find the user by userName and get the friends array
+		const user = await User.findOne({ userName }).select("friends");
+
+		if (!user) {
+			return res.status(404).send({ status: false, message: "User not found" });
+		}
+
+		// Create a filter for the search functionality
+		let searchFilter = {};
+
+		if (search) {
+			searchFilter = {
+				$or: [
+					{ name: { $regex: search, $options: "i" } },
+					{ userName: { $regex: search, $options: "i" } },
+				],
+			};
+		}
+
+		// Find the name and userName of each friend in the friends array, filtered by search
+		const friends = await User.find(
+			{ userName: { $in: user.friends }, ...searchFilter },
+			"name userName",
+		);
+
+		// Send the populated and filtered friends array
+		res.status(200).send({ status: true, friends });
+	} catch (error) {
+		console.error("Error in getAllFriends:", error);
+		res.status(500).send({ status: false, error: "Internal Server Error" });
+	}
+}
+
+// Get users
+async function getUsers(req, res) {
+	try {
+		let { search, page = 1 } = req.query;
+		const limit = 10;
+		const skip = (page - 1) * limit;
+
+		// Normalize the search string
+		search = search ? search.trim().toLowerCase() : "";
+
+		// Split the search string into multiple terms
+		const searchTerms = search.split(" ");
+
+		const users = await User.aggregate([
+			{
+				$match: {
+					$or: searchTerms.map((term) => ({
+						$or: [
+							{ name: { $regex: term, $options: "i" } },
+							{ userName: { $regex: term, $options: "i" } },
+						],
+					})),
+				},
+			},
+			{
+				$addFields: {
+					weightedScore: {
+						$add: [
+							{
+								$multiply: [
+									{
+										$cond: [
+											{
+												$regexMatch: {
+													input: "$name",
+													regex: search,
+													options: "i",
+												},
+											},
+											1,
+											0,
+										],
+									},
+									5, // Weight for the name field
+								],
+							},
+							{
+								$multiply: [
+									{
+										$cond: [
+											{
+												$regexMatch: {
+													input: "$userName",
+													regex: search,
+													options: "i",
+												},
+											},
+											1,
+											0,
+										],
+									},
+									10, // Weight for the userName field
+								],
+							},
+						],
+					},
+				},
+			},
+			{
+				$sort: { weightedScore: -1 }, // Sort by weighted score
+			},
+			{
+				$project: {
+					_id: 0,
+					name: 1,
+					userName: 1,
+					weightedScore: 1,
+				},
+			},
+			{
+				$skip: skip,
+			},
+			{
+				$limit: limit,
+			},
+		]);
+
+		// Count the total number of matching documents
+		const totalUsers = await User.countDocuments({
+			$or: searchTerms.map((term) => ({
+				$or: [
+					{ name: { $regex: term, $options: "i" } },
+					{ userName: { $regex: term, $options: "i" } },
+				],
+			})),
+		});
+
+		// Send the users array and total count
+		res.status(200).send({ status: true, users, totalUsers });
+	} catch (error) {
+		console.error("Error in getUsers:", error);
+		res.status(500).send({ status: false, error: "Internal Server Error" });
 	}
 }
 
@@ -201,23 +384,35 @@ async function addFriend(req, res) {
 
 		// Check if the user and friend are the same person
 		if (userName === friendUserName)
-			throw new Error("User cannot add themselves as a friend.");
+			return res.status(400).send({
+				status: false,
+				error: "User cannot add themselves as a friend.",
+			});
 
 		// Find the user and the friend by userName
 		const user = await User.findOne({ userName });
-		if (!user) throw new Error("User does not exist.");
+		if (!user)
+			return res
+				.status(404)
+				.send({ status: false, error: "User does not exist." });
 
 		const friend = await User.findOne({ userName: friendUserName });
-		if (!friend) throw new Error("Friend does not exist.");
+		if (!friend)
+			return res
+				.status(404)
+				.send({ status: false, error: "Friend does not exist." });
 
 		// Check if the friend is already in the user's friend list
-		if (user.friends.includes(friend._id)) {
-			throw new Error("This user is already in your friend list.");
+		if (user.friends.includes(friendUserName)) {
+			return res.status(400).send({
+				status: false,
+				error: "This user is already in your friend list.",
+			});
 		}
 
 		// Add each other as friends
-		user.friends.push(friend._id);
-		friend.friends.push(user._id);
+		user.friends.push(friendUserName);
+		friend.friends.push(userName);
 
 		// Save both users' updated data
 		await Promise.all([user.save(), friend.save()]);
@@ -226,8 +421,7 @@ async function addFriend(req, res) {
 			.status(200)
 			.send({ status: true, message: "Friend added successfully." });
 	} catch (error) {
-		console.log(error.message);
-		res.status(400).send({ status: false, error: error.message });
+		res.status(500).send({ status: false, error: error.message });
 	}
 }
 
@@ -238,23 +432,35 @@ async function removeFriend(req, res) {
 
 		// Check if the user and friend are the same person
 		if (userName === friendUserName)
-			throw new Error("User cannot remove themselves as a friend.");
+			return res.status(400).send({
+				status: false,
+				error: "User cannot remove themselves as a friend.",
+			});
 
 		// Find the user and the friend by userName
 		const user = await User.findOne({ userName });
-		if (!user) throw new Error("User does not exist.");
+		if (!user)
+			return res
+				.status(404)
+				.send({ status: false, error: "User does not exist." });
 
 		const friend = await User.findOne({ userName: friendUserName });
-		if (!friend) throw new Error("Friend does not exist.");
+		if (!friend)
+			return res
+				.status(404)
+				.send({ status: false, error: "Friend does not exist." });
 
 		// Check if the friend is in the user's friend list
-		if (!user.friends.includes(friend._id)) {
-			throw new Error("This user is not in your friend list.");
+		if (!user.friends.includes(friendUserName)) {
+			return res.status(400).send({
+				status: false,
+				error: "This user is not in your friend list.",
+			});
 		}
 
 		// Remove each other as friends
-		user.friends.pull(friend._id);
-		friend.friends.pull(user._id);
+		user.friends.pull(friendUserName);
+		friend.friends.pull(userName);
 
 		// Save both users' updated data
 		await Promise.all([user.save(), friend.save()]);
@@ -263,8 +469,41 @@ async function removeFriend(req, res) {
 			.status(200)
 			.send({ status: true, message: "Friend removed successfully." });
 	} catch (error) {
-		console.log(error.message);
-		res.status(400).send({ status: false, error: error.message });
+		res.status(500).send({ status: false, error: error.message });
+	}
+}
+
+// Check if a user is friend to other user
+async function isFriend(req, res) {
+	try {
+		const { userName, friendUserName } = req.body;
+
+		// Check if the user and friend are the same person
+		if (userName === friendUserName) {
+			return res.status(400).send({
+				status: false,
+				error: "User and Friend are the same.",
+			});
+		}
+
+		// Find the user by userName
+		const user = await User.findOne({ userName });
+
+		// Check if user exists
+		if (!user) {
+			return res
+				.status(404)
+				.send({ status: false, error: "User does not exist." });
+		}
+
+		// Check if the friendUserName is in the user's friends list
+		const isFriend = user.friends.includes(friendUserName);
+
+		// Send the response with the friendship status
+		return res.status(200).send({ status: true, isFriend });
+	} catch (error) {
+		// Handle any unexpected errors
+		return res.status(500).send({ status: false, error: error.message });
 	}
 }
 
@@ -275,18 +514,28 @@ async function blockUser(req, res) {
 
 		// Check if the user and blockUser are the same person
 		if (userName === blockUserName)
-			throw new Error("User cannot block themselves.");
+			return res
+				.status(400)
+				.send({ status: false, error: "User cannot block themselves." });
 
 		// Find the user and the blockUser by userName
 		const user = await User.findOne({ userName });
-		if (!user) throw new Error("User does not exist.");
+		if (!user)
+			return res
+				.status(404)
+				.send({ status: false, error: "User does not exist." });
 
 		const blockUser = await User.findOne({ userName: blockUserName });
-		if (!blockUser) throw new Error("User to be blocked does not exist.");
+		if (!blockUser)
+			return res
+				.status(404)
+				.send({ status: false, error: "User to be blocked does not exist." });
 
 		// Check if the user is already blocked
 		if (user.blockedUsers.includes(blockUser._id)) {
-			throw new Error("This user is already blocked.");
+			return res
+				.status(400)
+				.send({ status: false, error: "This user is already blocked." });
 		}
 
 		// Block the user
@@ -299,8 +548,7 @@ async function blockUser(req, res) {
 			.status(200)
 			.send({ status: true, message: "User blocked successfully." });
 	} catch (error) {
-		console.log(error.message);
-		res.status(400).send({ status: false, error: error.message });
+		res.status(500).send({ status: false, error: error.message });
 	}
 }
 
@@ -308,20 +556,32 @@ async function blockUser(req, res) {
 async function unblockUser(req, res) {
 	try {
 		const { userName, unblockUserName } = req.body;
+
 		// Check if the user and unblockUser are the same person
 		if (userName === unblockUserName)
-			throw new Error("User cannot unblock themselves.");
+			return res
+				.status(400)
+				.send({ status: false, error: "User cannot unblock themselves." });
 
 		// Find the user and the unblockUser by userName
 		const user = await User.findOne({ userName });
-		if (!user) throw new Error("User does not exist.");
+		if (!user)
+			return res
+				.status(404)
+				.send({ status: false, error: "User does not exist." });
 
 		const unblockUser = await User.findOne({ userName: unblockUserName });
-		if (!unblockUser) throw new Error("User to be unblocked does not exist.");
+		if (!unblockUser)
+			return res
+				.status(404)
+				.send({ status: false, error: "User to be unblocked does not exist." });
 
 		// Check if the user is already unblocked
 		if (!user.blockedUsers.includes(unblockUser._id)) {
-			throw new Error("This user is not in your blocked list.");
+			return res.status(400).send({
+				status: false,
+				error: "This user is not in your blocked list.",
+			});
 		}
 
 		// Unblock the user
@@ -334,89 +594,22 @@ async function unblockUser(req, res) {
 			.status(200)
 			.send({ status: true, message: "User unblocked successfully." });
 	} catch (error) {
-		console.log(error.message);
-		res.status(400).send({ status: false, error: error.message });
-	}
-}
-
-// Block a group for a user
-async function blockGroup(req, res) {
-	try {
-		const { userName, blockUserName } = req.body;
-		// Check if the user and blockUser are the same person
-		if (userName === blockUserName)
-			throw new Error("User cannot block themselves.");
-
-		// Find the user and the blockUser by userName
-		const user = await User.findOne({ userName });
-		if (!user) throw new Error("User does not exist.");
-
-		const blockUser = await User.findOne({ userName: blockUserName });
-		if (!blockUser) throw new Error("User to be blocked does not exist.");
-
-		// Check if the user is already blocked
-		if (user.blockedUsers.includes(blockUser._id)) {
-			throw new Error("This user is already blocked.");
-		}
-
-		// Block the user
-		user.blockedUsers.push(blockUser._id);
-
-		// Save the updated user data
-		await user.save();
-
-		res
-			.status(200)
-			.send({ status: true, message: "User blocked successfully." });
-	} catch (error) {
-		console.log(error.message);
-		res.status(400).send({ status: false, error: error.message });
-	}
-}
-
-// Unblock a group for a user
-async function unblockGroup(req, res) {
-	try {
-		const { userName, unblockUserName } = req.body;
-		// Check if the user and unblockUser are the same person
-		if (userName === unblockUserName)
-			throw new Error("User cannot unblock themselves.");
-
-		// Find the user and the unblockUser by userName
-		const user = await User.findOne({ userName });
-		if (!user) throw new Error("User does not exist.");
-
-		const unblockUser = await User.findOne({ userName: unblockUserName });
-		if (!unblockUser) throw new Error("User to be unblocked does not exist.");
-
-		// Check if the user is already unblocked
-		if (!user.blockedUsers.includes(unblockUser._id)) {
-			throw new Error("This user is not in your blocked list.");
-		}
-
-		// Unblock the user
-		user.blockedUsers.pull(unblockUser._id);
-
-		// Save the updated user data
-		await user.save();
-
-		res
-			.status(200)
-			.send({ status: true, message: "User unblocked successfully." });
-	} catch (error) {
-		console.log(error.message);
-		res.status(400).send({ status: false, error: error.message });
+		res.status(500).send({ status: false, error: error.message });
 	}
 }
 
 export {
+	getProfile,
 	signUp,
 	signIn,
 	signOut,
 	updateLastSeen,
 	getLastSeen,
+	getAllFriends,
 	addFriend,
 	removeFriend,
+	isFriend,
 	blockUser,
 	unblockUser,
+	getUsers,
 };
