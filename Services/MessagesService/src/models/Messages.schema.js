@@ -21,7 +21,7 @@ const MessageSchema = new mongoose.Schema(
 		},
 		seenBy: [
 			{
-				userId: {
+				userName: {
 					type: String,
 					required: true,
 				},
@@ -31,12 +31,24 @@ const MessageSchema = new mongoose.Schema(
 				},
 			},
 		],
-		message: {
+		deletedFor: [
+			{
+				userName: {
+					type: String,
+					required: true,
+				},
+				deletedAt: {
+					type: Date,
+					default: () => moment().tz("Asia/Kolkata").toDate(),
+				},
+			},
+		],
+		messageBody: {
 			type: String,
 			required: true,
 		},
 	},
-	{ timestamps: true }
+	{ timestamps: true },
 );
 
 const Message = mongoose.model("Message", MessageSchema);
