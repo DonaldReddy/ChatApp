@@ -2,8 +2,8 @@ import { Router } from "express";
 import {
 	sendFriendRequest,
 	acceptFriendRequest,
-	rejectFriendRequest,
-	cancelFriendRequest,
+	ignoreFriendRequest,
+	withdrawFriendRequest,
 	getSentFriendRequests,
 	getReceivedFriendRequests,
 } from "../controllers/FriendRequest.controller.js";
@@ -15,7 +15,7 @@ router.get("/get-received-friend-requests", getReceivedFriendRequests);
 
 router.post("/send-friend-request", sendFriendRequest);
 router.post("/accept-friend-request", acceptFriendRequest);
-router.post("/reject-friend-request", rejectFriendRequest);
-router.post("/cancel-friend-request", cancelFriendRequest);
+router.post("/ignore-friend-request", ignoreFriendRequest);
+router.post("/withdraw-friend-request", withdrawFriendRequest);
 
 export default router;

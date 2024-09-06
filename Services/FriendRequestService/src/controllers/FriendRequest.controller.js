@@ -1,6 +1,8 @@
 import FriendRequest from "../models/FriendRequest.schema.js";
 import axios from "axios";
 import services from "../../services.js";
+import { Types } from "mongoose";
+const { ObjectId } = Types;
 
 // to send friend request to another user
 async function sendFriendRequest(req, res) {
@@ -15,11 +17,21 @@ async function sendFriendRequest(req, res) {
 		const existingFriendRequest = await FriendRequest.findOne({
 			from: userName,
 			to: friendUserName,
-			status: "pending",
 		});
 
 		// If a pending request exists, inform the user
 		if (existingFriendRequest) throw new Error("Friend request already sent");
+
+		const isFriendResponse = await axios.post(
+			`${services.user.target}/api/v1/user/is-friend`,
+			{
+				userName,
+				friendUserName,
+			},
+		);
+		console.log(isFriendResponse.data.isFriend);
+
+		if (isFriendResponse.data.isFriend) throw new Error("Already friend");
 
 		// Create a new friend request
 		const newFriendRequest = new FriendRequest({
@@ -33,9 +45,6 @@ async function sendFriendRequest(req, res) {
 		// Send a success response indicating the request was successfully sent
 		res.status(200).send({ status: true });
 	} catch (error) {
-		// Log the error message for debugging
-		console.error("Error sending friend request:", error.message);
-
 		// Send an error response with the appropriate status code and message
 		res.status(400).send({ status: false, error: error.message });
 	}
@@ -45,6 +54,11 @@ async function sendFriendRequest(req, res) {
 async function acceptFriendRequest(req, res) {
 	try {
 		const { friendRequestId } = req.body;
+
+		// Validate friendRequestId to ensure it's a valid MongoDB ObjectId
+		if (!ObjectId.isValid(friendRequestId)) {
+			throw new Error("Invalid friend request ID format");
+		}
 
 		// Find the friend request by its ID
 		const existingFriendRequest = await FriendRequest.findById(friendRequestId);
@@ -61,29 +75,37 @@ async function acceptFriendRequest(req, res) {
 			},
 		);
 
-		console.log(response.data);
-
 		// Check if the friend addition was successful in the user service
 		if (!response.data.status) throw new Error(response.data.error);
+
+		// Deleting reverse friend request between two users
+		await FriendRequest.findOneAndDelete({
+			from: existingFriendRequest.to,
+			to: existingFriendRequest.from,
+		});
 
 		// Delete the friend request from the database after successful acceptance
 		await existingFriendRequest.deleteOne();
 
 		// Send a success response indicating the request was successfully accepted
-		res.status(200).send({ status: true });
+		res
+			.status(200)
+			.send({
+				status: true,
+				from: existingFriendRequest.from,
+				to: existingFriendRequest.to,
+			});
 	} catch (error) {
-		// Log the error message for debugging purposes
-		console.error("Error accepting friend request:", error.message);
-
 		// Send an error response with a 400 status code and the error message
 		res.status(400).send({ status: false, error: error.message });
 	}
 }
 
 // withdraw / cancel sent friend request
-async function cancelFriendRequest(req, res) {
+async function withdrawFriendRequest(req, res) {
 	try {
 		const { friendRequestId } = req.body;
+		console.log(friendRequestId);
 
 		// Find the friend request by its ID
 		const existingFriendRequest = await FriendRequest.findById(friendRequestId);
@@ -97,21 +119,20 @@ async function cancelFriendRequest(req, res) {
 		// Send a success response indicating the request was successfully canceled
 		res.status(200).send({ status: true });
 	} catch (error) {
-		// Log the error message for debugging purposes
-		console.error("Error canceling friend request:", error.message);
-
 		// Send an error response with a 400 status code and the error message
 		res.status(400).send({ status: false, error: error.message });
 	}
 }
 
 // reject friend request sent by another user
-async function rejectFriendRequest(req, res) {
+async function ignoreFriendRequest(req, res) {
 	try {
 		const { friendRequestId } = req.body;
 
 		// Find the friend request by ID
-		const existingFriendRequest = await FriendRequest.findById(friendRequestId);
+		const existingFriendRequest = await FriendRequest.findById(
+			new ObjectId(friendRequestId),
+		);
 
 		// Check if the friend request exists
 		if (!existingFriendRequest) throw new Error("Friend request doesn't exist");
@@ -125,9 +146,6 @@ async function rejectFriendRequest(req, res) {
 		// Send a success response after successfully updating the request
 		res.status(200).send({ status: true });
 	} catch (error) {
-		// Log the error message for debugging
-		console.error("Error rejecting friend request:", error.message);
-
 		// Send an error response with the appropriate status code and message
 		res.status(400).send({ status: false, error: error.message });
 	}
@@ -141,14 +159,18 @@ async function getSentFriendRequests(req, res) {
 		// Find all friend requests sent by the specified user
 		const friendRequests = await FriendRequest.find({
 			from: userName, // Use "from" to filter friend requests sent by the user
-		}).select(["_id", "from", "to"]);
+		}).select(["_id", "to", "createdAt"]);
+
+		// Map over the friendRequests to rename _id to requestId
+		const transformedRequests = friendRequests.map((request) => ({
+			requestId: request._id,
+			to: request.to,
+			createdAt: request.createdAt,
+		}));
 
 		// Send a success response with the list of friend requests
-		res.status(200).send({ status: true, friendRequests });
+		res.status(200).send({ status: true, friendRequests: transformedRequests });
 	} catch (error) {
-		// Log the error message for debugging
-		console.error("Error retrieving sent friend requests:", error.message);
-
 		// Send an error response with the appropriate status code and message
 		res.status(400).send({ status: false, error: error.message });
 	}
@@ -163,14 +185,18 @@ async function getReceivedFriendRequests(req, res) {
 		const friendRequests = await FriendRequest.find({
 			to: userName, // Filter friend requests where the user is the recipient
 			status: "pending",
-		}).select(["_id", "from", "to"]); // Select only the necessary fields for the response
+		}).select(["_id", "from", "createdAt"]); // Select only the necessary fields for the response
 
-		// Send a success response with the list of friend requests
-		res.status(200).send({ status: true, friendRequests });
+		// Map over the friendRequests to rename _id to requestId
+		const transformedRequests = friendRequests.map((request) => ({
+			requestId: request._id,
+			from: request.from,
+			createdAt: request.createdAt,
+		}));
+
+		// Send a success response with the list of transformed friend requests
+		res.status(200).send({ status: true, friendRequests: transformedRequests });
 	} catch (error) {
-		// Log the error message for debugging
-		console.error("Error retrieving received friend requests:", error.message);
-
 		// Send an error response with the appropriate status code and message
 		res.status(400).send({ status: false, error: error.message });
 	}
@@ -179,8 +205,8 @@ async function getReceivedFriendRequests(req, res) {
 export {
 	sendFriendRequest,
 	acceptFriendRequest,
-	cancelFriendRequest,
-	rejectFriendRequest,
+	withdrawFriendRequest,
+	ignoreFriendRequest,
 	getSentFriendRequests,
 	getReceivedFriendRequests,
 };

@@ -1,9 +1,10 @@
 const services = {
 	user: {
 		route: "/user",
-		target: process.env.IS_DEV
-			? "http://localhost:3001"
-			: "https://chatapp-user-service.onrender.com",
+		target:
+			process.env.IS_DEV == "true"
+				? "http://localhost:3007"
+				: "https://chatapp-user-service.onrender.com",
 	},
 };
 
