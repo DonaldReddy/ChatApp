@@ -8,21 +8,37 @@ const server = createServer(app);
 
 const io = new Server(server);
 
-io.on("connection", (socket) => {
-	socket.emit("welcome", socket.id);
+io.on("connection", async (socket) => {
 	console.log(socket.id, "connected");
+
+	socket.emit("INIT");
+
+	socket.on("INIT", async (userName) => {
+		try {
+			await axios.post(
+				`${services.wsSession.target}/api/v1/ws-session/create-new-ws-session`,
+				{
+					userName,
+					wsId: socket.id,
+				},
+			);
+		} catch (error) {
+			console.error(
+				"Error creating ws session for " + socket.id,
+				error.message,
+			);
+		}
+	});
+
 	socket.on("disconnect", async () => {
 		try {
-			console.log(socket.id, "disconnected");
-			console.log(`${services.wsSession.target}/api/v1/ws-session/delete`);
-
 			await axios.post(
 				`${services.wsSession.target}/api/v1/ws-session/delete-ws-session`,
 				{
 					wsId: socket.id,
 				},
 			);
-			console.log("deleted ws session for " + socket.id);
+			console.log(socket.id, "disconnected");
 		} catch (error) {
 			console.error(
 				"Error deleting ws session for " + socket.id,
@@ -32,4 +48,4 @@ io.on("connection", (socket) => {
 	});
 });
 
-export { server };
+export { server, io };
