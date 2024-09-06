@@ -14,8 +14,6 @@ async function createNewWSSession(req, res) {
 async function deleteWSSession(req, res) {
 	try {
 		const { userName, wsId } = req.body;
-		console.log(req.body);
-
 		const query = {};
 		if (userName) query.userName = userName;
 		if (wsId) query.wsId = wsId;
@@ -26,22 +24,16 @@ async function deleteWSSession(req, res) {
 	}
 }
 
-async function getWSSession(req, res) {
+async function getWSSessions(req, res) {
 	try {
-		const { userName, wsId } = req?.query;
-		const query = {};
-		if (userName) query.userName = userName;
-		if (wsId) query.wsId = wsId;
-		const session = await WSSession.findOne(query).select([
-			"userName",
-			"wsId",
-			"-_id",
-		]);
-		if (!session) throw new Error("No session for provided username");
-		res.status(200).send({ status: true, data: { session } });
+		const { userNames } = req.body;
+		const sessions = await WSSession.find({
+			userName: { $in: userNames },
+		}).select(["userName", "wsId", "-_id"]);
+		res.status(200).send({ status: true, sessions });
 	} catch (error) {
 		res.status(400).send({ status: false, error: error.message });
 	}
 }
 
-export { createNewWSSession, getWSSession, deleteWSSession };
+export { createNewWSSession, getWSSessions, deleteWSSession };
