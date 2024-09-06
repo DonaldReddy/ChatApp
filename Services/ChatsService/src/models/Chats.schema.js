@@ -27,7 +27,7 @@ const ChatSchema = new Schema(
 // Pre-save middleware to count and update noOfParticipants
 ChatSchema.pre("save", function (next) {
 	// Add createdBy to participants if the chat is new
-	if (this.isNew) {
+	if (this.isNew && !this.participants.includes(this.createdBy)) {
 		this.participants.push(this.createdBy);
 	}
 

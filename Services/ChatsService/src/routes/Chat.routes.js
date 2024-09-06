@@ -7,6 +7,7 @@ import {
 	addMemberToChat,
 	removeMemberFromChat,
 	getRecentGroupChats,
+	getChatBetweenTwoUsers,
 } from "../controllers/Chat.controller.js";
 
 const router = Router();
@@ -14,6 +15,7 @@ const router = Router();
 router.get("/get-recent-private-chats", getRecentPrivateChats);
 router.get("/get-recent-group-chats", getRecentGroupChats);
 router.get("/get-chat", getChat);
+router.get("/get-chat-between-two", getChatBetweenTwoUsers);
 
 router.post("/create-new-group-chat", createNewGroupChat);
 router.post("/create-new-chat-and-send-message", createNewChatAndSendMessage);

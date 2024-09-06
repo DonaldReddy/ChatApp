@@ -33,38 +33,54 @@ async function createNewGroupChat(req, res) {
 // Creates a new private chat or finds an existing one, then saves it
 async function createNewChatAndSendMessage(req, res) {
 	try {
-		const { userName, friendUserName, message } = req.body;
+		const { userName, friendUserName, messageBody } = req.body;
 
-		if (!userName || !friendUserName || !message)
+		if (!userName || !friendUserName || !messageBody) {
 			throw new Error("Invalid Inputs");
+		}
 
 		let existingChat = await Chat.findOne({
 			chatType: "private",
-			participants: [userName, friendUserName],
+			participants: { $all: [userName, friendUserName] },
 		});
+
 		if (!existingChat) {
 			existingChat = new Chat({
 				createdBy: userName,
 				chatType: "private",
-				participants: [friendUserName],
+				participants: [userName, friendUserName],
 			});
 		}
 
 		await existingChat.save();
 
+		const {
+			_id: chatId,
+			updatedAt: lastMessageAt,
+			chatType,
+			participants,
+		} = existingChat;
+
 		const response = await axios.post(
 			`${services.message.target}/api/v1/message/send-message`,
 			{
 				userName,
-				message,
-				chatId: existingChat._id,
+				messageBody,
+				chatId,
 			},
 		);
 
-		if (!response.data.status) throw new Error(response.data.error);
+		if (!response.data.status) {
+			throw new Error(response.data.error);
+		}
 
-		res.status(200).send({ status: true });
+		res.status(200).send({
+			status: true,
+			chat: { chatId, lastMessageAt, chatType, participants },
+			message: response.data.message,
+		});
 	} catch (error) {
+		console.log(error.message);
 		res.status(400).send({ status: false, error: error.message });
 	}
 }
@@ -73,7 +89,6 @@ async function createNewChatAndSendMessage(req, res) {
 async function getRecentPrivateChats(req, res) {
 	try {
 		const { userName, search } = req.query;
-		console.log(userName);
 
 		let { limit = 10, page = 1 } = req.query;
 
@@ -152,9 +167,25 @@ async function getRecentGroupChats(req, res) {
 async function getChat(req, res) {
 	try {
 		const { chatId } = req.query;
-		console.log(chatId);
-
 		const chat = await Chat.findById(new ObjectId(chatId));
+		res.status(200).send({ status: true, chat });
+	} catch (error) {
+		res.status(400).send({ status: false, error: error.message });
+	}
+}
+
+// Get chat between two users
+async function getChatBetweenTwoUsers(req, res) {
+	try {
+		const { userName, friendUserName } = req.query;
+
+		const chat = await Chat.findOne({
+			participants: { $all: [userName, friendUserName] },
+			chatType: "private",
+		})
+			.select("_id updatedAt chatType participants")
+			.lean();
+
 		res.status(200).send({ status: true, chat });
 	} catch (error) {
 		res.status(400).send({ status: false, error: error.message });
@@ -205,4 +236,5 @@ export {
 	getChat,
 	addMemberToChat,
 	removeMemberFromChat,
+	getChatBetweenTwoUsers,
 };
