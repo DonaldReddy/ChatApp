@@ -4,7 +4,7 @@ const services = {
 		target:
 			process.env.IS_DEV == "true"
 				? "http://localhost:3002"
-				: "https://friend-request.services.hola.donaldreddy.xy",
+				: "https://friend-request.services.hola.donaldreddy.xyz",
 	},
 	session: {
 		route: "/session",

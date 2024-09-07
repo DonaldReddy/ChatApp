@@ -11,21 +11,21 @@ const services = {
 		target:
 			process.env.IS_DEV == "true"
 				? "http://localhost:3002"
-				: "https://friend-request.services.hola.donaldreddy.xy",
+				: "https://friend-request.services.hola.donaldreddy.xyz",
 	},
 	groupInvites: {
 		route: "/group-invite",
 		target:
 			process.env.IS_DEV == "true"
 				? "http://localhost:3003"
-				: "https://chatapp-websocket-service.onrender.com/socket.io",
+				: "https://chatapp-websocket-service.onrender.com/socket.io", //not hosted yet
 	},
 	group: {
 		route: "/group",
 		target:
 			process.env.IS_DEV == "true"
 				? "http://localhost:3004"
-				: "https://chatapp-websocket-service.onrender.com/socket.io",
+				: "https://chatapp-websocket-service.onrender.com/socket.io", //not hosted yet
 	},
 	message: {
 		route: "/message",
