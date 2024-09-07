@@ -35,12 +35,15 @@ client.connect();
 async function sendMessage(req, res) {
 	try {
 		const { author, messageBody, chatId } = req.body;
+		console.log("sending message");
 
 		if (!author || !messageBody || !chatId) throw new Error("Invalid Params");
 
+		console.log("finding chat");
 		const chatResponse = await axios.get(
 			`${services.chat.target}/api/v1/chat/get-chat?chatId=${chatId}`,
 		);
+		console.log("found chat");
 
 		if (!chatResponse.data.status) throw new Error(chatResponse.data.error);
 
@@ -63,6 +66,7 @@ async function sendMessage(req, res) {
 			messageBody,
 			sentAt: newMessage.sentAt,
 		};
+		console.log("adding to redis");
 
 		await client.lPush(
 			"messages",
@@ -71,6 +75,7 @@ async function sendMessage(req, res) {
 				message,
 			}),
 		);
+		console.log("added to redis");
 
 		res.status(200).send({
 			status: true,
