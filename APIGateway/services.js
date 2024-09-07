@@ -4,14 +4,14 @@ const services = {
 		target:
 			process.env.IS_DEV == "true"
 				? "http://localhost:3001"
-				: "https://chatapp-websocket-service.onrender.com/socket.io",
+				: "https://chat.services.hola.donaldreddy.xyz",
 	},
 	friendRequest: {
 		route: "/friend-request",
 		target:
 			process.env.IS_DEV == "true"
 				? "http://localhost:3002"
-				: "https://chatapp-user-service.onrender.com",
+				: "https://friend-request.services.hola.donaldreddy.xy",
 	},
 	groupInvites: {
 		route: "/group-invite",
@@ -22,16 +22,17 @@ const services = {
 	},
 	group: {
 		route: "/group",
-		target: process.env.IS_DEV
-			? "http://localhost:3004"
-			: "https://chatapp-websocket-service.onrender.com/socket.io",
+		target:
+			process.env.IS_DEV == "true"
+				? "http://localhost:3004"
+				: "https://chatapp-websocket-service.onrender.com/socket.io",
 	},
 	message: {
 		route: "/message",
 		target:
 			process.env.IS_DEV == "true"
 				? "http://localhost:3005"
-				: "https://chatapp-websocket-service.onrender.com/socket.io",
+				: "https://message.services.hola.donaldreddy.xyz",
 	},
 	session: {
 		route: "/session",
@@ -53,7 +54,7 @@ const services = {
 		target:
 			process.env.IS_DEV == "true"
 				? "http://localhost:3008/socket.io"
-				: "https://chatapp-websocket-service.onrender.com/socket.io",
+				: "https://ws.server.hola.donaldreddy.xyz/socket.io",
 		type: "ws",
 	},
 	wsSession: {
@@ -61,7 +62,7 @@ const services = {
 		target:
 			process.env.IS_DEV == "true"
 				? "http://localhost:3009"
-				: "https://chatapp-websocket-service.onrender.com/socket.io",
+				: "https://ws-session.services.hola.donaldreddy.xyz",
 	},
 };
 
