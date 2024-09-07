@@ -23,7 +23,9 @@ app.use(
 		},
 	}),
 );
-
+app.use("/", (req, res) => {
+	res.send("invalid request");
+});
 app.use("/api/v1/ws-session", router);
 
 export default app;
