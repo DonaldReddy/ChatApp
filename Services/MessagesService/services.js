@@ -1,15 +1,17 @@
 const services = {
 	chat: {
 		route: "/chat",
-		target: process.env.IS_DEV
-			? "http://localhost:3001"
-			: "https://chatapp-websocket-service.onrender.com/socket.io",
+		target:
+			process.env.IS_DEV == "true"
+				? "http://localhost:3001"
+				: "https://chat.services.hola.donaldreddy.xyz",
 	},
 	user: {
 		route: "/user",
-		target: process.env.IS_DEV
-			? "http://localhost:3007"
-			: "https://chatapp-user-service.onrender.com",
+		target:
+			process.env.IS_DEV == "true"
+				? "http://localhost:3007"
+				: "https://user.services.hola.donaldreddy.xyz",
 	},
 };
 
