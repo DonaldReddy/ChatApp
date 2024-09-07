@@ -22,9 +22,9 @@ app.use(
 		},
 	}),
 );
+
+app.use("/api/v1/group", router);
 app.use("/", (req, res) => {
 	res.send("invalid request");
 });
-app.use("/api/v1/group", router);
-
 export default app;

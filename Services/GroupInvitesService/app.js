@@ -19,9 +19,9 @@ app.use(
 		},
 	}),
 );
+
+app.use("/api/v1/group-invite", router);
 app.use("/", (req, res) => {
 	res.send("invalid request");
 });
-app.use("/api/v1/group-invite", router);
-
 export default app;

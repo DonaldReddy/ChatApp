@@ -22,9 +22,9 @@ app.use(
 		},
 	}),
 );
+
+app.use("/websocket-event/message", router);
 app.use("/", (req, res) => {
 	res.send("invalid request");
 });
-app.use("/websocket-event/message", router);
-
 export default app;

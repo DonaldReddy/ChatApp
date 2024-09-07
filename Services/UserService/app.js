@@ -21,9 +21,10 @@ app.use(
 		},
 	}),
 );
+app.use("/api/v1/user", router);
+
 app.use("/", (req, res) => {
 	res.send("invalid request");
 });
-app.use("/api/v1/user", router);
 
 export default app;

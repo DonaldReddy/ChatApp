@@ -124,6 +124,7 @@ async function signIn(req, res) {
 				refreshToken: REFRESH_TOKEN,
 			},
 		);
+		console.log(response.data);
 
 		if (!response.data.status)
 			throw new Error("Can't create session right now");
