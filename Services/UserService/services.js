@@ -3,8 +3,8 @@ const services = {
 		route: "/friend-request",
 		target:
 			process.env.IS_DEV == "true"
-				? "http://localhost:3004"
-				: "https://chatapp-user-service.onrender.com",
+				? "http://localhost:3002"
+				: "https://friend-request.services.hola.donaldreddy.xy",
 	},
 	session: {
 		route: "/session",
