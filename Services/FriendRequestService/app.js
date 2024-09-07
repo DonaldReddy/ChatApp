@@ -11,6 +11,8 @@ app.use(
 	cors({
 		credentials: true,
 		origin: function (origin, callback) {
+			console.log(origin);
+
 			if (
 				!origin ||
 				/\.donaldreddy\.xyz$/.test(origin) ||
