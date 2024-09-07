@@ -6,7 +6,6 @@ import { signJWT, signJWTRefresh } from "../../utils/generateJWT.utils.js";
 import services from "../../services.js";
 
 // Get user profile
-// Get user profile
 async function getProfile(req, res) {
 	try {
 		const { userName } = req.query;
