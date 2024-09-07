@@ -4,7 +4,7 @@ const services = {
 		target:
 			process.env.IS_DEV == "true"
 				? "http://localhost:3007"
-				: "https://chatapp-user-service.onrender.com",
+				: "https://user.services.hola.donaldreddy.xyz",
 	},
 };
 
