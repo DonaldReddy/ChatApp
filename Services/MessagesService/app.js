@@ -3,7 +3,6 @@ import cors from "cors";
 import router from "./src/routes/Message.routes.js";
 
 const app = express();
-
 app.use(express.json());
 
 app.use(
@@ -17,14 +16,17 @@ app.use(
 			) {
 				callback(null, true);
 			} else {
-				callback(new Error("Not allowed by CORS"));
+				callback("Not allowed by CORS");
 			}
 		},
 	}),
 );
 
 app.use("/api/v1/message", router);
+
 app.use("/", (req, res) => {
+	console.log(req.url, req.originalUrl);
+
 	res.send("invalid request");
 });
 export default app;
