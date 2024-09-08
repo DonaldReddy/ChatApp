@@ -12,8 +12,13 @@ const SessionSchema = new mongoose.Schema(
 			required: true,
 			unique: true,
 		},
+		accessToken: {
+			type: String,
+			required: true,
+			unique: true,
+		},
 	},
-	{ timestamps: true }
+	{ timestamps: true },
 );
 
 const Session = mongoose.model("Session", SessionSchema);

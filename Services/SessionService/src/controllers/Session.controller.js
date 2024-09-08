@@ -21,9 +21,11 @@ async function getSession(req, res) {
 		const query = {};
 		if (userName) query.userName = userName;
 		if (refreshToken) query.refreshToken = refreshToken;
-		const session = await Session.findOne(query);
+		const session = await Session.findOne(query).select(
+			"userName refreshToken accessToken",
+		);
 		if (!session) throw new Error("No session for provided username");
-		res.status(200).send({ status: true, data: { session } });
+		res.status(200).send({ status: true, session });
 	} catch (error) {
 		res.status(400).send({ status: false, error: error.message });
 	}

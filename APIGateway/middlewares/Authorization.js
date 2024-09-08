@@ -21,15 +21,21 @@ async function verifyJWT(req, res, next) {
 		}
 
 		// Fetch session data
-		const { data: session } = await axios.get(
+		const { data } = await axios.get(
 			`${services.session.target}/api/v1/session/get-session?userName=${decodedAccessToken.userName}`,
 		);
 
-		if (!session.status) {
+		if (!data.status) {
 			throw new Error("Session not found");
 		}
 
-		return next();
+		const session = data.session;
+
+		if (session.accessToken != ACCESS_TOKEN) {
+			return clearSessionAndRespond(req, res);
+		}
+
+		if (data) return next();
 	} catch (accessError) {
 		console.log("Access token verification failed:", accessError.message);
 

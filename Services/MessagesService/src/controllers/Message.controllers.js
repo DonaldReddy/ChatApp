@@ -37,7 +37,9 @@ async function sendMessage(req, res) {
 		const { author, messageBody, chatId } = req.body;
 		console.log("sending message");
 
+		console.log("invalid");
 		if (!author || !messageBody || !chatId) throw new Error("Invalid Params");
+		console.log("valid");
 
 		console.log("finding chat");
 		const chatResponse = await axios.get(
