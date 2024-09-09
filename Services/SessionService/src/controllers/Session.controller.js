@@ -3,9 +3,9 @@ import services from "../../services.js";
 
 async function createSession(req, res) {
 	try {
-		const { userName, refreshToken } = req?.body;
+		const { userName, refreshToken, accessToken } = req?.body;
 		await Session.deleteMany({ userName });
-		const newSession = new Session({ userName, refreshToken });
+		const newSession = new Session({ userName, refreshToken, accessToken });
 		await newSession.save();
 		res.status(200).send({ status: true });
 	} catch (error) {

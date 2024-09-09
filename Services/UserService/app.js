@@ -24,7 +24,9 @@ app.use(
 app.use("/api/v1/user", router);
 
 app.use("/", (req, res) => {
-	res.send("invalid request");
+	console.log(req.url, req.originalUrl);
+
+	// res.send("invalid request");
 });
 
 export default app;

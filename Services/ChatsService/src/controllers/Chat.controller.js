@@ -60,12 +60,11 @@ async function createNewChatAndSendMessage(req, res) {
 			chatType,
 			participants,
 		} = existingChat;
-		console.log(`${services.message.target}/api/v1/message/send-message`);
 
 		const response = await axios.post(
 			`${services.message.target}/api/v1/message/send-message`,
 			{
-				userName,
+				author: userName,
 				messageBody,
 				chatId,
 			},

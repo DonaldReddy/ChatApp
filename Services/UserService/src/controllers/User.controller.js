@@ -66,6 +66,7 @@ async function signUp(req, res) {
 			{
 				userName: userName,
 				refreshToken: REFRESH_TOKEN,
+				accessToken: ACCESS_TOKEN,
 			},
 		);
 
@@ -121,6 +122,7 @@ async function signIn(req, res) {
 			{
 				userName: userName,
 				refreshToken: REFRESH_TOKEN,
+				accessToken: ACCESS_TOKEN,
 			},
 		);
 		console.log(response.data);

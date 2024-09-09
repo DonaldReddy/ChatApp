@@ -35,17 +35,12 @@ client.connect();
 async function sendMessage(req, res) {
 	try {
 		const { author, messageBody, chatId } = req.body;
-		console.log("sending message");
 
-		console.log("invalid");
 		if (!author || !messageBody || !chatId) throw new Error("Invalid Params");
-		console.log("valid");
 
-		console.log("finding chat");
 		const chatResponse = await axios.get(
 			`${services.chat.target}/api/v1/chat/get-chat?chatId=${chatId}`,
 		);
-		console.log("found chat");
 
 		if (!chatResponse.data.status) throw new Error(chatResponse.data.error);
 
