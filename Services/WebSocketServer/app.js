@@ -24,7 +24,5 @@ app.use(
 );
 
 app.use("/websocket-event/message", router);
-app.use("/", (req, res) => {
-	res.send("invalid request");
-});
+
 export default app;

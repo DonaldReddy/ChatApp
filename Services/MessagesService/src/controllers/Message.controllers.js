@@ -63,7 +63,6 @@ async function sendMessage(req, res) {
 			messageBody,
 			sentAt: newMessage.sentAt,
 		};
-		console.log("adding to redis");
 
 		await client.lPush(
 			"messages",
@@ -72,7 +71,6 @@ async function sendMessage(req, res) {
 				message,
 			}),
 		);
-		console.log("added to redis");
 
 		res.status(200).send({
 			status: true,

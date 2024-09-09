@@ -22,18 +22,6 @@ app.use(
 	}),
 );
 
-app.use(
-	"/api/v1/message",
-	(req, res, next) => {
-		console.log(req.url, req.originalUrl);
-		next();
-	},
-	router,
-);
+app.use("/api/v1/message", router);
 
-// app.use("/", (req, res) => {
-// 	console.log(req.url, req.originalUrl);
-
-// 	res.send("invalid request");
-// });
 export default app;

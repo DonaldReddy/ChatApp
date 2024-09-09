@@ -24,7 +24,4 @@ app.use(
 
 app.use("/api/v1/chat", router);
 
-app.use("/", (req, res) => {
-	res.send("invalid request");
-});
 export default app;

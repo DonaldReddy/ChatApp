@@ -67,9 +67,6 @@ Object.keys(services).forEach((service) => {
 	});
 });
 
-app.use("/", (req, res) => {
-	res.send("invalid request");
-});
 
 // Handling WebSocket connections
 server.on("upgrade", (req, socket, head) => {
