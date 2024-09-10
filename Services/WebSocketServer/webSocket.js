@@ -9,7 +9,6 @@ const server = createServer(app);
 const io = new Server(server);
 
 io.on("connection", async (socket) => {
-	console.log(socket.id, "connected");
 
 	socket.emit("INIT");
 
@@ -38,7 +37,6 @@ io.on("connection", async (socket) => {
 					wsId: socket.id,
 				},
 			);
-			console.log(socket.id, "disconnected");
 		} catch (error) {
 			console.error(
 				"Error deleting ws session for " + socket.id,

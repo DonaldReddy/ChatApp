@@ -43,7 +43,6 @@ async function sendGroupInvites(req, res) {
 
 		res.send({ status: true });
 	} catch (error) {
-		console.log(error.message);
 		res.send({ status: true, error: error.message });
 	}
 }
@@ -56,7 +55,6 @@ async function getReceivedGroupInvites(req, res) {
 
 		res.send({ status: true, invites });
 	} catch (error) {
-		console.log(error.message);
 		res.send({ status: true, error: "Failed to fetch Invites" });
 	}
 }
@@ -69,7 +67,6 @@ async function getSentGroupInvites(req, res) {
 
 		res.send({ status: true, invites });
 	} catch (error) {
-		console.log(error.message);
 		res.send({ status: true, error: "Failed to fetch Invites" });
 	}
 }
@@ -102,7 +99,6 @@ async function acceptGroupInvite(req, res) {
 
 		res.send({ status: true });
 	} catch (error) {
-		console.log(error.message);
 		res.send({ status: true, error: error.message });
 	}
 }
@@ -117,7 +113,6 @@ async function rejectGroupInvite(req, res) {
 		await invite.save();
 		res.send({ status: true });
 	} catch (error) {
-		console.log(error.message);
 		res.send({ status: true, error: error.message });
 	}
 }
@@ -131,7 +126,6 @@ async function deleteGroupInvite(req, res) {
 		await invite.deleteOne();
 		res.send({ status: true });
 	} catch (error) {
-		console.log(error.message);
 		res.send({ status: true, error: error.message });
 	}
 }

@@ -9,8 +9,6 @@ async function createSession(req, res) {
 		await newSession.save();
 		res.status(200).send({ status: true });
 	} catch (error) {
-		console.log(error.message);
-
 		res.status(400).send({ status: false, error: error.message });
 	}
 }

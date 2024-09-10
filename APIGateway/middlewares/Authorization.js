@@ -37,8 +37,6 @@ async function verifyJWT(req, res, next) {
 
 		if (data) return next();
 	} catch (accessError) {
-		console.log("Access token verification failed:", accessError.message);
-
 		// Handle refresh token verification
 		return handleRefreshToken(req, res, next);
 	}
@@ -83,8 +81,6 @@ async function handleRefreshToken(req, res, next) {
 
 		return next();
 	} catch (refreshError) {
-		console.log("Refresh token verification failed:", refreshError.message);
-
 		return clearSessionAndRespond(req, res);
 	}
 }

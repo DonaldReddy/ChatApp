@@ -80,7 +80,6 @@ async function createNewChatAndSendMessage(req, res) {
 			message: response.data.message,
 		});
 	} catch (error) {
-		console.log(error.message);
 		res.status(400).send({ status: false, error: error.message });
 	}
 }

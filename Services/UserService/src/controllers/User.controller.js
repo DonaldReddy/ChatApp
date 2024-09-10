@@ -125,14 +125,9 @@ async function signIn(req, res) {
 				accessToken: ACCESS_TOKEN,
 			},
 		);
-		console.log(response.data);
 
 		if (!response.data.status)
 			throw new Error("Can't create session right now");
-
-		console.log("user", userName);
-
-		console.log(ACCESS_TOKEN, REFRESH_TOKEN);
 
 		res.cookie("ACCESS_TOKEN", ACCESS_TOKEN, {
 			httpOnly: true,

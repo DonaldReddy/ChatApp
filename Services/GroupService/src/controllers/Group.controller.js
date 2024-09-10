@@ -15,7 +15,6 @@ async function createNewGroup(req, res) {
 		await newGroup.save();
 		res.status(200).send({ status: true, group: newGroup });
 	} catch (error) {
-		console.log(error.message);
 		res.status(400).send({ status: false, error: error.message });
 	}
 }
@@ -27,7 +26,6 @@ async function deleteGroup(req, res) {
 		await Group.findByIdAndDelete(new ObjectId(groupId));
 		res.status(200).send({ status: true });
 	} catch (error) {
-		console.log(error.message);
 		res.status(400).send({ status: false, error: error.message });
 	}
 }
@@ -44,7 +42,6 @@ async function promoteToAdmin(req, res) {
 		await existingGroup.save();
 		res.status(200).send({ status: true });
 	} catch (error) {
-		console.log(error.message);
 		res.status(400).send({ status: false, error: error.message });
 	}
 }
@@ -61,7 +58,6 @@ async function demoteToMember(req, res) {
 		await existingGroup.save();
 		res.status(200).send({ status: true });
 	} catch (error) {
-		console.log(error.message);
 		res.status(400).send({ status: false, error: error.message });
 	}
 }
@@ -76,7 +72,6 @@ async function getGroup(req, res) {
 		if (!existingGroup) throw new Error("Invalid Group Id");
 		res.status(200).send({ status: true, group: existingGroup });
 	} catch (error) {
-		console.log(error.message);
 		res.status(400).send({ status: false, error: error.message });
 	}
 }

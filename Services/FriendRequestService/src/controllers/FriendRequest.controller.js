@@ -29,7 +29,6 @@ async function sendFriendRequest(req, res) {
 				friendUserName,
 			},
 		);
-		console.log(isFriendResponse.data.isFriend);
 
 		if (isFriendResponse.data.isFriend) throw new Error("Already friend");
 
@@ -105,7 +104,6 @@ async function acceptFriendRequest(req, res) {
 async function withdrawFriendRequest(req, res) {
 	try {
 		const { friendRequestId } = req.body;
-		console.log(friendRequestId);
 
 		// Find the friend request by its ID
 		const existingFriendRequest = await FriendRequest.findById(friendRequestId);
